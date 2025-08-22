@@ -220,7 +220,7 @@ export default function VendasPage() {
               {sales.length > 0 ? sales.map((sale) => (
                 <TableRow key={sale.id}>
                   <TableCell>{formatDate(sale.date)}</TableCell>
-                  <TableCell>{sale.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
+                  <TableCell>{sale.items.map(i => i.productName).join(', ')}</TableCell>
                   <TableCell>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</TableCell>
                   <TableCell>{formatCurrency(sale.total)}</TableCell>
                   <TableCell className="flex gap-2">
