@@ -111,11 +111,11 @@ export default function VendasPage() {
 
         if (!isNaN(parsedHours) && parsedHours >= 0 && parsedHours <= 23) {
           newDate.setHours(parsedHours);
+          setEditingSale({ ...editingSale, date: newDate.toISOString() });
         } else if (hours === '') {
            newDate.setHours(0);
+           setEditingSale({ ...editingSale, date: newDate.toISOString() });
         }
-      
-        setEditingSale({ ...editingSale, date: newDate.toISOString() });
     }
   }
 
@@ -287,11 +287,12 @@ export default function VendasPage() {
                 <Label htmlFor="sale-time">Hora da Venda (HH)</Label>
                 <Input
                   id="sale-time"
-                  type="text"
+                  type="number"
                   placeholder="HH"
                   value={format(new Date(editingSale.date), 'HH')}
                   onChange={handleUpdateSaleTime}
-                  maxLength={2}
+                  min="0"
+                  max="23"
                 />
               </div>
             </div>
