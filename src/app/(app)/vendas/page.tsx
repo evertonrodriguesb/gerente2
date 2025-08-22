@@ -130,7 +130,6 @@ export default function VendasPage() {
 
   const confirmDeleteSale = (saleId: string) => {
     removeSale(saleId);
-    toast({ title: 'Sucesso!', description: 'Venda removida e estoque atualizado.' });
   }
 
   return (
