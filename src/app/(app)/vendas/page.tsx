@@ -98,23 +98,17 @@ export default function VendasPage() {
   
   const handleUpdateSaleTime = (e: React.ChangeEvent<HTMLInputElement>) => {
     if(editingSale) {
-        const time = e.target.value;
-        const [hours, minutes] = time.split(':');
-        
-        if (hours !== undefined && minutes !== undefined) {
-          const newDate = new Date(editingSale.date);
-          const parsedHours = parseInt(hours, 10);
-          const parsedMinutes = parseInt(minutes, 10);
+        const hours = e.target.value;
+        const newDate = new Date(editingSale.date);
+        const parsedHours = parseInt(hours, 10);
 
-          if (!isNaN(parsedHours) && parsedHours >= 0 && parsedHours <= 23) {
-            newDate.setHours(parsedHours);
-          }
-          if (!isNaN(parsedMinutes) && parsedMinutes >= 0 && parsedMinutes <= 59) {
-            newDate.setMinutes(parsedMinutes);
-          }
-        
-          setEditingSale({ ...editingSale, date: newDate.toISOString() });
+        if (!isNaN(parsedHours) && parsedHours >= 0 && parsedHours <= 23) {
+          newDate.setHours(parsedHours);
+        } else if (hours === '') {
+           newDate.setHours(0);
         }
+      
+        setEditingSale({ ...editingSale, date: newDate.toISOString() });
     }
   }
 
@@ -259,13 +253,14 @@ export default function VendasPage() {
                 </Popover>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="sale-time">Hora da Venda (HH:mm)</Label>
+                <Label htmlFor="sale-time">Hora da Venda (HH)</Label>
                 <Input
                   id="sale-time"
                   type="text"
-                  placeholder="HH:mm"
-                  value={format(new Date(editingSale.date), 'HH:mm')}
+                  placeholder="HH"
+                  value={format(new Date(editingSale.date), 'HH')}
                   onChange={handleUpdateSaleTime}
+                  maxLength={2}
                 />
               </div>
             </div>
