@@ -25,15 +25,16 @@ export default function ProdutosPage() {
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
-    price: 0,
+    salePrice: 0,
+    costPrice: 0,
     quantity: 0,
   });
 
   const handleAddProduct = () => {
-    if (newProduct.name && newProduct.price > 0 && newProduct.quantity >= 0) {
+    if (newProduct.name && newProduct.salePrice > 0 && newProduct.quantity >= 0) {
       addProduct(newProduct);
       toast({ title: 'Sucesso!', description: 'Produto adicionado com sucesso.' });
-      setNewProduct({ name: '', description: '', price: 0, quantity: 0 });
+      setNewProduct({ name: '', description: '', salePrice: 0, costPrice: 0, quantity: 0 });
       setIsAddDialogOpen(false);
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha os campos obrigatórios.' });
@@ -46,7 +47,7 @@ export default function ProdutosPage() {
   }
 
   const handleUpdateProduct = () => {
-    if (editingProduct && editingProduct.name && editingProduct.price > 0 && editingProduct.quantity >= 0) {
+    if (editingProduct && editingProduct.name && editingProduct.salePrice > 0 && editingProduct.quantity >= 0) {
       updateProduct(editingProduct);
       toast({ title: 'Sucesso!', description: 'Produto atualizado com sucesso.' });
       setEditingProduct(null);
@@ -91,8 +92,8 @@ export default function ProdutosPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="price">Preço (R$)</Label>
-                    <Input id="price" type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) || 0 })} />
+                    <Label htmlFor="price">Preço de Venda (R$)</Label>
+                    <Input id="price" type="number" value={newProduct.salePrice} onChange={(e) => setNewProduct({ ...newProduct, salePrice: parseFloat(e.target.value) || 0 })} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="quantity">Quantidade</Label>
@@ -110,7 +111,8 @@ export default function ProdutosPage() {
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
-                <TableHead>Preço</TableHead>
+                <TableHead>Preço de Venda</TableHead>
+                <TableHead>Custo</TableHead>
                 <TableHead>Estoque</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -120,7 +122,8 @@ export default function ProdutosPage() {
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
-                  <TableCell>{formatCurrency(product.price)}</TableCell>
+                  <TableCell>{formatCurrency(product.salePrice)}</TableCell>
+                  <TableCell>{formatCurrency(product.costPrice)}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
@@ -151,7 +154,7 @@ export default function ProdutosPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Nenhum produto cadastrado.
                   </TableCell>
                 </TableRow>
@@ -177,13 +180,17 @@ export default function ProdutosPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="edit-price">Preço (R$)</Label>
-                    <Input id="edit-price" type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
+                    <Label htmlFor="edit-price">Preço de Venda (R$)</Label>
+                    <Input id="edit-price" type="number" value={editingProduct.salePrice} onChange={(e) => setEditingProduct({ ...editingProduct, salePrice: parseFloat(e.target.value) || 0 })} />
                   </div>
                   <div className="grid gap-2">
+                    <Label htmlFor="edit-cost">Custo (R$)</Label>
+                    <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
+                  </div>
+                </div>
+                <div className="grid gap-2">
                     <Label htmlFor="edit-quantity">Quantidade</Label>
                     <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
-                  </div>
                 </div>
               </div>
             )}

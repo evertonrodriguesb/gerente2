@@ -13,27 +13,21 @@ import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Trash2 } from 'lucide-react';
 
 export default function ComprasPage() {
-  const { products, addProduct, removeProduct } = useStore();
+  const { products, addPurchase, removeProduct } = useStore();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const [newProduct, setNewProduct] = useState({
+  const [newPurchase, setNewPurchase] = useState({
     name: '',
-    description: '',
-    price: 0,
     quantity: 0,
+    costPrice: 0,
   });
 
-  const handleAddProduct = () => {
-    if (newProduct.name && newProduct.price > 0 && newProduct.quantity > 0) {
-      addProduct({
-          name: newProduct.name,
-          description: '',
-          price: newProduct.price,
-          quantity: newProduct.quantity,
-      });
+  const handleAddPurchase = () => {
+    if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0) {
+      addPurchase(newPurchase);
       toast({ title: 'Sucesso!', description: 'Compra registrada e estoque atualizado.' });
-      setNewProduct({ name: '', description: '', price: 0, quantity: 0 });
+      setNewPurchase({ name: '', quantity: 0, costPrice: 0 });
       setIsAddDialogOpen(false);
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha todos os campos corretamente.' });
@@ -68,20 +62,20 @@ export default function ComprasPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="name">Nome do Produto</Label>
-                  <Input id="name" placeholder="Ex: Camiseta Básica" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+                  <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="quantity">Quantidade Comprada</Label>
-                    <Input id="quantity" type="number" value={newProduct.quantity} onChange={(e) => setNewProduct({ ...newProduct, quantity: parseInt(e.target.value) || 0 })} />
+                    <Input id="quantity" type="number" value={newPurchase.quantity} onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) || 0 })} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="price">Custo por Unidade (R$)</Label>
-                    <Input id="price" type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) || 0 })} />
+                    <Input id="price" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
                   </div>
                 </div>
               </div>
-              <Button onClick={handleAddProduct} className="w-full">Salvar Compra</Button>
+              <Button onClick={handleAddPurchase} className="w-full">Salvar Compra</Button>
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -100,7 +94,7 @@ export default function ComprasPage() {
                 <TableRow key={product.id}>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
-                  <TableCell>{formatCurrency(product.price)}</TableCell>
+                  <TableCell>{formatCurrency(product.costPrice)}</TableCell>
                   <TableCell>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>

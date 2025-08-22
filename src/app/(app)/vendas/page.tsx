@@ -65,7 +65,7 @@ export default function VendasPage() {
       );
       setCart(newCart);
     } else {
-      setCart([...cart, { productId: product.id, productName: product.name, price: product.price, quantity: quantity }]);
+      setCart([...cart, { productId: product.id, productName: product.name, price: product.salePrice, quantity: quantity }]);
     }
     setSelectedProduct('');
     setQuantity(1);
