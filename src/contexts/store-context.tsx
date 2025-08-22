@@ -9,6 +9,7 @@ type StoreContextType = {
   addProduct: (product: Omit<Product, 'id'>) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total'>) => void;
   updateProduct: (updatedProduct: Product) => void;
+  removeProduct: (productId: string) => void;
   getProductById: (id: string) => Product | undefined;
 };
 
@@ -65,6 +66,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
   };
+  
+  const removeProduct = (productId: string) => {
+    setProducts((prev) => prev.filter((p) => p.id !== productId));
+  };
 
   const addSale = (sale: Omit<Sale, 'id' | 'date' | 'total'>) => {
     let total = 0;
@@ -96,7 +101,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <StoreContext.Provider value={{ products, sales, addProduct, addSale, updateProduct, getProductById }}>
+    <StoreContext.Provider value={{ products, sales, addProduct, addSale, updateProduct, removeProduct, getProductById }}>
       {children}
     </StoreContext.Provider>
   );
