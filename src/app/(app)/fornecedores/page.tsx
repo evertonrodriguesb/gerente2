@@ -91,7 +91,7 @@ export default function ComprasPage() {
               <TableRow>
                 <TableHead>Produto</TableHead>
                 <TableHead>Estoque Atual</TableHead>
-                <TableHead>Preço de Venda</TableHead>
+                <TableHead>Preço de Compra</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
