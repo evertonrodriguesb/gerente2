@@ -28,7 +28,7 @@ export default function ComprasPage() {
     if (newProduct.name && newProduct.price > 0 && newProduct.quantity > 0) {
       addProduct({
           name: newProduct.name,
-          description: `Compra - ${new Date().toLocaleDateString('pt-BR')}`,
+          description: '',
           price: newProduct.price,
           quantity: newProduct.quantity,
       });
