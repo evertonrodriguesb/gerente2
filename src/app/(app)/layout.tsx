@@ -24,7 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <AppSidebar />
               </SheetContent>
             </Sheet>
-            <span className="text-lg font-semibold">Gerente Ágil</span>
+            <span className="text-lg font-semibold">Gestor Ágil</span>
           </header>
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background/50">
             {children}

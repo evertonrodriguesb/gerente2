@@ -26,7 +26,7 @@ export default function ReposicaoPage() {
         const result = await sugestaoDeReposicao({
           salesHistory: salesHistory || "Nenhuma venda registrada.",
           currentStockLevels: currentStockLevels || "Nenhum produto em estoque.",
-          storeName: 'Gerente Ágil',
+          storeName: 'Gestor Ágil',
         });
         setSuggestion(result.restockSuggestions);
       } catch (error) {

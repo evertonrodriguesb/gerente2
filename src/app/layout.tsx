@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'Gerente Ágil',
+  title: 'Gestor Ágil',
   description: 'Um gestor de loja simples e ágil para pequenos negócios.',
 };
 
