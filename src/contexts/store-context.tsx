@@ -9,7 +9,7 @@ type StoreContextType = {
   suppliers: Supplier[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   addPurchase: (purchase: { name: string; quantity: number; costPrice: number }) => void;
-  addSale: (sale: Omit<Sale, 'id' | 'date' | 'total'>) => void;
+  addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
   updateSale: (updatedSale: Sale) => void;
@@ -121,18 +121,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
   };
 
-  const addSale = (sale: Omit<Sale, 'id' | 'date' | 'total'>) => {
+  const addSale = (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => {
     let total = 0;
+    let totalCost = 0;
     const updatedProducts = [...products];
 
     sale.items.forEach((item) => {
       total += item.price * item.quantity;
+      totalCost += item.costPrice * item.quantity;
       const productIndex = updatedProducts.findIndex((p) => p.id === item.productId);
       if (productIndex !== -1) {
         updatedProducts[productIndex].quantity -= item.quantity;
       }
     });
 
+    const grossProfit = total - totalCost;
     setProducts(updatedProducts);
 
     setSales((prev) => [
@@ -141,6 +144,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         id: Date.now().toString(),
         date: new Date().toISOString(),
         total,
+        grossProfit,
       },
       ...prev,
     ]);

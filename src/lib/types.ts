@@ -12,12 +12,14 @@ export type SaleItem = {
   productName: string;
   quantity: number;
   price: number;
+  costPrice: number;
 };
 
 export type Sale = {
   id: string;
   items: SaleItem[];
   total: number;
+  grossProfit: number;
   date: string;
 };
 

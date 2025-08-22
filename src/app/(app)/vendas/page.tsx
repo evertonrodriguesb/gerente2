@@ -58,14 +58,18 @@ export default function VendasPage() {
       return;
     }
 
-    const existingCartItem = cart.find(item => item.productId === product.id);
-    if (existingCartItem) {
-      const newCart = cart.map(item => 
-        item.productId === product.id ? {...item, quantity: item.quantity + quantity } : item
-      );
+    const existingCartItemIndex = cart.findIndex(item => item.productId === product.id);
+    if (existingCartItemIndex > -1) {
+      const newCart = [...cart];
+      const newQuantity = newCart[existingCartItemIndex].quantity + quantity;
+      if(newQuantity > product.quantity) {
+        toast({ variant: 'destructive', title: 'Erro', description: `Estoque insuficiente. Disponível: ${product.quantity}` });
+        return;
+      }
+      newCart[existingCartItemIndex].quantity = newQuantity;
       setCart(newCart);
     } else {
-      setCart([...cart, { productId: product.id, productName: product.name, price: product.salePrice, quantity: quantity }]);
+      setCart([...cart, { productId: product.id, productName: product.name, price: product.salePrice, costPrice: product.costPrice, quantity: quantity }]);
     }
     setSelectedProduct('');
     setQuantity(1);
@@ -213,6 +217,7 @@ export default function VendasPage() {
                 <TableHead>Itens</TableHead>
                 <TableHead>Quantidade</TableHead>
                 <TableHead>Total</TableHead>
+                <TableHead>Lucro Bruto</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -223,6 +228,7 @@ export default function VendasPage() {
                   <TableCell>{sale.items.map(i => i.productName).join(', ')}</TableCell>
                   <TableCell>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</TableCell>
                   <TableCell>{formatCurrency(sale.total)}</TableCell>
+                  <TableCell>{formatCurrency(sale.grossProfit)}</TableCell>
                   <TableCell className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => handleEditSale(sale)}>
                       <Edit className="h-4 w-4" />
@@ -252,7 +258,7 @@ export default function VendasPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Nenhuma venda registrada.
                   </TableCell>
                 </TableRow>
