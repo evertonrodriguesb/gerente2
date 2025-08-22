@@ -33,7 +33,10 @@ export default function VendasPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('pt-BR');
+    return new Date(dateString).toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
   const handleAddToCart = () => {
@@ -194,7 +197,7 @@ export default function VendasPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Data e Hora</TableHead>
+                <TableHead>Hora da Venda</TableHead>
                 <TableHead>Itens</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Ações</TableHead>
