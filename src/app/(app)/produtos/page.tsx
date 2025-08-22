@@ -58,7 +58,6 @@ export default function ProdutosPage() {
   
   const confirmDeleteProduct = (productId: string) => {
     removeProduct(productId);
-    toast({ title: 'Sucesso!', description: 'Produto removido com sucesso.' });
   }
 
   const formatCurrency = (value: number) => {
