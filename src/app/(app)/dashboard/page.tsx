@@ -59,12 +59,6 @@ export default function DashboardPage() {
           icon={<Boxes className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
-          title="Receita Total" 
-          value={formatCurrency(totalSalesValue)}
-          description="Soma de todas as vendas"
-          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatCard 
           title="Vendas Realizadas" 
           value={totalSalesCount}
           description="Número total de transações"
@@ -75,6 +69,12 @@ export default function DashboardPage() {
           value={totalItemsSold}
           description="Quantidade total de itens vendidos"
           icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatCard 
+          title="Receita Total" 
+          value={formatCurrency(totalSalesValue)}
+          description="Soma de todas as vendas"
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Lucro Bruto Total" 
