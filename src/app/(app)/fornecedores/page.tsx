@@ -10,12 +10,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Edit } from 'lucide-react';
+import type { Product } from '@/lib/types';
 
 export default function ComprasPage() {
-  const { products, addPurchase, removeProduct } = useStore();
+  const { products, addPurchase, removeProduct, updateProduct } = useStore();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const [newPurchase, setNewPurchase] = useState({
     name: '',
@@ -38,6 +41,22 @@ export default function ComprasPage() {
     removeProduct(productId);
     toast({ title: 'Sucesso!', description: 'Produto removido com sucesso.' });
   }
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateProduct = () => {
+    if (editingProduct && editingProduct.name && editingProduct.costPrice >= 0 && editingProduct.quantity >= 0) {
+      updateProduct(editingProduct);
+      toast({ title: 'Sucesso!', description: 'Produto atualizado com sucesso.' });
+      setEditingProduct(null);
+      setIsEditDialogOpen(false);
+    } else {
+      toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha os campos obrigatórios.' });
+    }
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -95,7 +114,11 @@ export default function ComprasPage() {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>{formatCurrency(product.costPrice)}</TableCell>
-                  <TableCell>
+                  <TableCell className="flex gap-2">
+                    <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Editar Produto</span>
+                    </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="destructive" size="icon">
@@ -129,6 +152,33 @@ export default function ComprasPage() {
           </Table>
         </CardContent>
       </Card>
+      
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Produto</DialogTitle>
+          </DialogHeader>
+          {editingProduct && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-name">Nome do Produto</Label>
+                <Input id="edit-name" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-quantity">Estoque Atual</Label>
+                  <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-cost">Custo por Unidade (R$)</Label>
+                  <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
+                </div>
+              </div>
+            </div>
+          )}
+          <Button onClick={handleUpdateProduct} className="w-full">Atualizar Produto</Button>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
