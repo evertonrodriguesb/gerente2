@@ -33,7 +33,10 @@ export default function VendasPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('pt-BR', {
+    return new Date(dateString).toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -197,7 +200,7 @@ export default function VendasPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Hora da Venda</TableHead>
+                <TableHead>Data da Venda</TableHead>
                 <TableHead>Itens</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Ações</TableHead>
