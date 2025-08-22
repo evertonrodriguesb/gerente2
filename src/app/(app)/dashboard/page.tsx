@@ -2,7 +2,7 @@
 
 import { useStore } from '@/hooks/use-store';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp } from 'lucide-react';
+import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart } from 'lucide-react';
 import type { ReactElement, FC } from 'react';
 
 interface StatCardProps {
@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.total, 0);
   const totalSalesCount = sales.length;
   const totalGrossProfit = sales.reduce((sum, sale) => sum + sale.grossProfit, 0);
+  const totalItemsSold = sales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -44,7 +45,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard 
           title="Total de Produtos" 
           value={totalProducts}
@@ -68,6 +69,12 @@ export default function DashboardPage() {
           value={totalSalesCount}
           description="Número total de transações"
           icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatCard 
+          title="Produtos Vendidos" 
+          value={totalItemsSold}
+          description="Quantidade total de itens vendidos"
+          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Lucro Bruto Total" 
