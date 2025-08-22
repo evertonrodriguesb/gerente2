@@ -10,12 +10,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Edit } from 'lucide-react';
+import type { Product } from '@/lib/types';
 
 export default function ProdutosPage() {
-  const { products, addProduct } = useStore();
+  const { products, addProduct, updateProduct } = useStore();
   const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -29,12 +33,28 @@ export default function ProdutosPage() {
       addProduct(newProduct);
       toast({ title: 'Sucesso!', description: 'Produto adicionado com sucesso.' });
       setNewProduct({ name: '', description: '', price: 0, quantity: 0 });
-      setIsDialogOpen(false);
+      setIsAddDialogOpen(false);
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha os campos obrigatórios.' });
     }
   };
   
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setIsEditDialogOpen(true);
+  }
+
+  const handleUpdateProduct = () => {
+    if (editingProduct && editingProduct.name && editingProduct.price > 0 && editingProduct.quantity >= 0) {
+      updateProduct(editingProduct);
+      toast({ title: 'Sucesso!', description: 'Produto atualizado com sucesso.' });
+      setEditingProduct(null);
+      setIsEditDialogOpen(false);
+    } else {
+      toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha os campos obrigatórios.' });
+    }
+  }
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
@@ -43,7 +63,7 @@ export default function ProdutosPage() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Produtos</CardTitle>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
               <PlusCircle className="h-3.5 w-3.5" />
@@ -86,6 +106,7 @@ export default function ProdutosPage() {
               <TableHead>Descrição</TableHead>
               <TableHead>Preço</TableHead>
               <TableHead>Estoque</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -95,10 +116,16 @@ export default function ProdutosPage() {
                 <TableCell>{product.description}</TableCell>
                 <TableCell>{formatCurrency(product.price)}</TableCell>
                 <TableCell>{product.quantity}</TableCell>
+                <TableCell>
+                  <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
+                    <Edit className="h-4 w-4" />
+                    <span className="sr-only">Editar Produto</span>
+                  </Button>
+                </TableCell>
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center">
                   Nenhum produto cadastrado.
                 </TableCell>
               </TableRow>
@@ -106,6 +133,37 @@ export default function ProdutosPage() {
           </TableBody>
         </Table>
       </CardContent>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Produto</DialogTitle>
+          </DialogHeader>
+          {editingProduct && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-name">Nome</Label>
+                <Input id="edit-name" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-description">Descrição</Label>
+                <Textarea id="edit-description" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-price">Preço (R$)</Label>
+                  <Input id="edit-price" type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-quantity">Quantidade</Label>
+                  <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
+                </div>
+              </div>
+            </div>
+          )}
+          <Button onClick={handleUpdateProduct} className="w-full">Atualizar Produto</Button>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
