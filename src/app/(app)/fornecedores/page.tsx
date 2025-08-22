@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle } from 'lucide-react';
-import type { Product } from '@/lib/types';
+import { PlusCircle, Trash2 } from 'lucide-react';
 
 export default function ComprasPage() {
-  const { products, addProduct } = useStore();
+  const { products, addProduct, removeProduct } = useStore();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -39,6 +39,11 @@ export default function ComprasPage() {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha todos os campos corretamente.' });
     }
   };
+
+  const confirmDeleteProduct = (productId: string) => {
+    removeProduct(productId);
+    toast({ title: 'Sucesso!', description: 'Produto removido com sucesso.' });
+  }
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -87,6 +92,7 @@ export default function ComprasPage() {
                 <TableHead>Produto</TableHead>
                 <TableHead>Estoque Atual</TableHead>
                 <TableHead>Preço de Venda</TableHead>
+                <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -95,10 +101,32 @@ export default function ComprasPage() {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>{formatCurrency(product.price)}</TableCell>
+                  <TableCell>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Remover Produto</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Essa ação não pode ser desfeita. Isso irá remover permanentemente o produto "{product?.name}" do seu estoque.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => confirmDeleteProduct(product.id)}>Continuar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center">
+                  <TableCell colSpan={4} className="h-24 text-center">
                     Nenhum produto cadastrado.
                   </TableCell>
                 </TableRow>
