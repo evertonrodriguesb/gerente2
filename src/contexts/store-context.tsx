@@ -1,11 +1,12 @@
 'use client';
 
-import type { Product, Sale } from '@/lib/types';
+import type { Product, Sale, Supplier } from '@/lib/types';
 import { createContext, useState, useEffect, type ReactNode } from 'react';
 
 type StoreContextType = {
   products: Product[];
   sales: Sale[];
+  suppliers: Supplier[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total'>) => void;
   updateProduct: (updatedProduct: Product) => void;
@@ -13,6 +14,9 @@ type StoreContextType = {
   updateSale: (updatedSale: Sale) => void;
   removeSale: (saleId: string) => void;
   getProductById: (id: string) => Product | undefined;
+  addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
+  updateSupplier: (updatedSupplier: Supplier) => void;
+  removeSupplier: (supplierId: string) => void;
 };
 
 export const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -23,15 +27,23 @@ const initialProducts: Product[] = [
   { id: '3', name: 'Tênis de Corrida', description: 'Leve e confortável', price: 299.9, quantity: 20 },
 ];
 
+const initialSuppliers: Supplier[] = [
+  { id: '1', name: 'Fornecedor de Camisetas S.A.', contact: 'contato@camisetassa.com' },
+  { id: '2', name: 'Jeans & Cia', contact: 'vendas@jeanscia.com.br' },
+];
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     try {
       const storedProducts = localStorage.getItem('products');
       const storedSales = localStorage.getItem('sales');
+      const storedSuppliers = localStorage.getItem('suppliers');
+      
       if (storedProducts) {
         setProducts(JSON.parse(storedProducts));
       } else {
@@ -40,9 +52,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (storedSales) {
         setSales(JSON.parse(storedSales));
       }
+      if (storedSuppliers) {
+        setSuppliers(JSON.parse(storedSuppliers));
+      } else {
+        setSuppliers(initialSuppliers);
+      }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
       setProducts(initialProducts);
+      setSuppliers(initialSuppliers);
     }
     setIsLoaded(true);
   }, []);
@@ -58,6 +76,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('sales', JSON.stringify(sales));
     }
   }, [sales, isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('suppliers', JSON.stringify(suppliers));
+    }
+  }, [suppliers, isLoaded]);
 
   const addProduct = (product: Omit<Product, 'id'>) => {
     setProducts((prev) => [...prev, { ...product, id: Date.now().toString() }]);
@@ -124,8 +148,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return products.find(p => p.id === id);
   }
 
+  const addSupplier = (supplier: Omit<Supplier, 'id'>) => {
+    setSuppliers(prev => [...prev, { ...supplier, id: Date.now().toString() }]);
+  };
+
+  const updateSupplier = (updatedSupplier: Supplier) => {
+    setSuppliers(prev => prev.map(s => s.id === updatedSupplier.id ? updatedSupplier : s));
+  };
+
+  const removeSupplier = (supplierId: string) => {
+    setSuppliers(prev => prev.filter(s => s.id !== supplierId));
+  };
+
   return (
-    <StoreContext.Provider value={{ products, sales, addProduct, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById }}>
+    <StoreContext.Provider value={{ products, sales, suppliers, addProduct, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier }}>
       {children}
     </StoreContext.Provider>
   );

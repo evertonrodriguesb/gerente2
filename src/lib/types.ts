@@ -19,3 +19,9 @@ export type Sale = {
   total: number;
   date: string;
 };
+
+export type Supplier = {
+  id: string;
+  name: string;
+  contact: string;
+};
