@@ -88,9 +88,24 @@ export default function VendasPage() {
 
   const handleUpdateSaleDate = (date: Date | undefined) => {
     if (editingSale && date) {
+      const currentSaleDate = new Date(editingSale.date);
+      date.setHours(currentSaleDate.getHours());
+      date.setMinutes(currentSaleDate.getMinutes());
+      date.setSeconds(currentSaleDate.getSeconds());
       setEditingSale({ ...editingSale, date: date.toISOString() });
     }
   };
+  
+  const handleUpdateSaleTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if(editingSale) {
+        const time = e.target.value;
+        const [hours, minutes] = time.split(':');
+        const newDate = new Date(editingSale.date);
+        newDate.setHours(parseInt(hours, 10));
+        newDate.setMinutes(parseInt(minutes, 10));
+        setEditingSale({ ...editingSale, date: newDate.toISOString() });
+    }
+  }
 
   const handleSaveChanges = () => {
     if (editingSale) {
@@ -174,7 +189,7 @@ export default function VendasPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Data</TableHead>
+                <TableHead>Data e Hora</TableHead>
                 <TableHead>Itens</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Ações</TableHead>
@@ -208,28 +223,39 @@ export default function VendasPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Data da Venda</DialogTitle>
+            <DialogTitle>Editar Data e Hora da Venda</DialogTitle>
           </DialogHeader>
           {editingSale && (
             <div className="grid gap-4 py-4">
-              <Label>Data da Venda</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {format(new Date(editingSale.date), "PPP", { locale: ptBR })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={new Date(editingSale.date)}
-                    onSelect={handleUpdateSaleDate}
-                    initialFocus
-                    locale={ptBR}
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="grid gap-2">
+                <Label>Data da Venda</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline">
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {format(new Date(editingSale.date), "PPP", { locale: ptBR })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={new Date(editingSale.date)}
+                      onSelect={handleUpdateSaleDate}
+                      initialFocus
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="sale-time">Hora da Venda</Label>
+                <Input
+                  id="sale-time"
+                  type="time"
+                  value={format(new Date(editingSale.date), 'HH:mm')}
+                  onChange={handleUpdateSaleTime}
+                />
+              </div>
             </div>
           )}
           <Button onClick={handleSaveChanges} className="w-full">Salvar Alterações</Button>
