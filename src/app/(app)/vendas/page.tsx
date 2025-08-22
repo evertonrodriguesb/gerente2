@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,7 +19,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function VendasPage() {
-  const { sales, products, addSale, updateSale } = useStore();
+  const { sales, products, addSale, updateSale, removeSale } = useStore();
   const { toast } = useToast();
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -127,6 +128,11 @@ export default function VendasPage() {
     }
   };
 
+  const confirmDeleteSale = (saleId: string) => {
+    removeSale(saleId);
+    toast({ title: 'Sucesso!', description: 'Venda removida e estoque atualizado.' });
+  }
+
   return (
     <>
       <Card>
@@ -212,11 +218,31 @@ export default function VendasPage() {
                   <TableCell>{formatDate(sale.date)}</TableCell>
                   <TableCell>{sale.items.map(i => `${i.quantity}x ${i.productName}`).join(', ')}</TableCell>
                   <TableCell>{formatCurrency(sale.total)}</TableCell>
-                  <TableCell>
+                  <TableCell className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => handleEditSale(sale)}>
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Editar Venda</span>
                     </Button>
+                     <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Remover Venda</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Essa ação não pode ser desfeita. Isso irá remover permanentemente a venda e retornar os itens ao estoque.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => confirmDeleteSale(sale.id)}>Continuar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               )) : (

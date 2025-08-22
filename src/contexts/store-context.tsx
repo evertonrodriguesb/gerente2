@@ -11,6 +11,7 @@ type StoreContextType = {
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
   updateSale: (updatedSale: Sale) => void;
+  removeSale: (saleId: string) => void;
   getProductById: (id: string) => Product | undefined;
 };
 
@@ -103,12 +104,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     );
   };
   
+  const removeSale = (saleId: string) => {
+    const saleToRemove = sales.find(s => s.id === saleId);
+    if (!saleToRemove) return;
+
+    const updatedProducts = [...products];
+    saleToRemove.items.forEach(item => {
+      const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
+      if (productIndex !== -1) {
+        updatedProducts[productIndex].quantity += item.quantity;
+      }
+    });
+    setProducts(updatedProducts);
+
+    setSales(prev => prev.filter(s => s.id !== saleId));
+  };
+  
   const getProductById = (id: string) => {
     return products.find(p => p.id === id);
   }
 
   return (
-    <StoreContext.Provider value={{ products, sales, addProduct, addSale, updateProduct, removeProduct, updateSale, getProductById }}>
+    <StoreContext.Provider value={{ products, sales, addProduct, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById }}>
       {children}
     </StoreContext.Provider>
   );
