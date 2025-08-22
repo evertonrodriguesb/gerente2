@@ -291,7 +291,7 @@ export default function VendasPage() {
                 <Label htmlFor="sale-time">Hora da Venda (HH:MM)</Label>
                 <Input
                   id="sale-time"
-                  type="time"
+                  type="text"
                   placeholder="HH:MM"
                   value={format(new Date(editingSale.date), 'HH:mm')}
                   onChange={handleUpdateSaleTime}
