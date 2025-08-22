@@ -19,7 +19,6 @@ export default function ProdutosPage() {
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -57,12 +56,9 @@ export default function ProdutosPage() {
     }
   }
   
-  const confirmDeleteProduct = () => {
-    if (productToDelete) {
-      removeProduct(productToDelete.id);
-      toast({ title: 'Sucesso!', description: 'Produto removido com sucesso.' });
-      setProductToDelete(null);
-    }
+  const confirmDeleteProduct = (productId: string) => {
+    removeProduct(productId);
+    toast({ title: 'Sucesso!', description: 'Produto removido com sucesso.' });
   }
 
   const formatCurrency = (value: number) => {
@@ -132,12 +128,26 @@ export default function ProdutosPage() {
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Editar Produto</span>
                     </Button>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="icon" onClick={() => setProductToDelete(product)}>
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Remover Produto</span>
-                      </Button>
-                    </AlertDialogTrigger>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Remover Produto</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Essa ação não pode ser desfeita. Isso irá remover permanentemente o produto "{product?.name}" do seu estoque.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => confirmDeleteProduct(product.id)}>Continuar</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               )) : (
@@ -182,21 +192,6 @@ export default function ProdutosPage() {
           </DialogContent>
         </Dialog>
       </Card>
-
-      <AlertDialog open={!!productToDelete} onOpenChange={(open) => !open && setProductToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Essa ação não pode ser desfeita. Isso irá remover permanentemente o produto "{productToDelete?.name}" do seu estoque.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteProduct}>Continuar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
