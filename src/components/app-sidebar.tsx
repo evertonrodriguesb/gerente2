@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, ShoppingCart, BrainCircuit, Truck } from 'lucide-react';
+import { Home, Package, ShoppingCart, BrainCircuit, ClipboardPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
   { href: '/produtos', label: 'Produtos', icon: Package },
   { href: '/vendas', label: 'Vendas', icon: ShoppingCart },
-  { href: '/fornecedores', label: 'Fornecedores', icon: Truck },
+  { href: '/fornecedores', label: 'Compras', icon: ClipboardPlus },
   { href: '/reposicao', label: 'Reposição IA', icon: BrainCircuit },
 ];
 
