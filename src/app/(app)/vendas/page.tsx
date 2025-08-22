@@ -100,10 +100,21 @@ export default function VendasPage() {
     if(editingSale) {
         const time = e.target.value;
         const [hours, minutes] = time.split(':');
-        const newDate = new Date(editingSale.date);
-        newDate.setHours(parseInt(hours, 10));
-        newDate.setMinutes(parseInt(minutes, 10));
-        setEditingSale({ ...editingSale, date: newDate.toISOString() });
+        
+        if (hours !== undefined && minutes !== undefined) {
+          const newDate = new Date(editingSale.date);
+          const parsedHours = parseInt(hours, 10);
+          const parsedMinutes = parseInt(minutes, 10);
+
+          if (!isNaN(parsedHours) && parsedHours >= 0 && parsedHours <= 23) {
+            newDate.setHours(parsedHours);
+          }
+          if (!isNaN(parsedMinutes) && parsedMinutes >= 0 && parsedMinutes <= 59) {
+            newDate.setMinutes(parsedMinutes);
+          }
+        
+          setEditingSale({ ...editingSale, date: newDate.toISOString() });
+        }
     }
   }
 
@@ -248,10 +259,11 @@ export default function VendasPage() {
                 </Popover>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="sale-time">Hora da Venda</Label>
+                <Label htmlFor="sale-time">Hora da Venda (HH:mm)</Label>
                 <Input
                   id="sale-time"
-                  type="time"
+                  type="text"
+                  placeholder="HH:mm"
                   value={format(new Date(editingSale.date), 'HH:mm')}
                   onChange={handleUpdateSaleTime}
                 />
