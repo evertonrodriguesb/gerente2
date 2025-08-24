@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -141,6 +142,11 @@ export default function VendasPage() {
     removeSale(saleId);
   }
 
+  const getProductImage = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    return product?.image;
+  }
+
   return (
     <>
       <Card>
@@ -223,6 +229,7 @@ export default function VendasPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Imagem</TableHead>
                 <TableHead>Data da Venda</TableHead>
                 <TableHead>Itens</TableHead>
                 <TableHead>Quantidade</TableHead>
@@ -232,8 +239,17 @@ export default function VendasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sales.length > 0 ? sales.map((sale) => (
+              {sales.length > 0 ? sales.map((sale) => {
+                const firstItemImage = sale.items.length > 0 ? getProductImage(sale.items[0].productId) : null;
+                return (
                 <TableRow key={sale.id}>
+                   <TableCell>
+                    {firstItemImage ? (
+                        <Image src={firstItemImage} alt={sale.items[0].productName} width={40} height={40} className="rounded-md object-cover h-10 w-10" />
+                    ) : (
+                      <div className="h-10 w-10 bg-muted rounded-md" />
+                    )}
+                  </TableCell>
                   <TableCell>{formatDate(sale.date)}</TableCell>
                   <TableCell>{sale.items.map(i => i.productName).join(', ')}</TableCell>
                   <TableCell>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</TableCell>
@@ -266,9 +282,9 @@ export default function VendasPage() {
                     </AlertDialog>
                   </TableCell>
                 </TableRow>
-              )) : (
+              )}) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     Nenhuma venda registrada.
                   </TableCell>
                 </TableRow>
