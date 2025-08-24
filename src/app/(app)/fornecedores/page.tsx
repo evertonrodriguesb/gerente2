@@ -152,9 +152,9 @@ export default function ComprasPage() {
                 <TableRow key={product.id}>
                   <TableCell>
                     {product.image ? (
-                        <Image src={product.image} alt={product.name} width={40} height={40} className="rounded-md object-cover h-10 w-10" />
+                        <Image src={product.image} alt={product.name} width={64} height={64} className="rounded-md object-cover h-16 w-16" />
                     ) : (
-                      <div className="h-10 w-10 bg-muted rounded-md" />
+                      <div className="h-16 w-16 bg-muted rounded-md" />
                     )}
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
