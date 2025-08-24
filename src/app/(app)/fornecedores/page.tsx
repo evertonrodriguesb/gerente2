@@ -164,15 +164,9 @@ export default function ComprasPage() {
                 <Label htmlFor="edit-name">Nome do Produto</Label>
                 <Input id="edit-name" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-quantity">Estoque Atual</Label>
-                  <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-cost">Custo por Unidade (R$)</Label>
-                  <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-cost">Custo por Unidade (R$)</Label>
+                <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
               </div>
             </div>
           )}
