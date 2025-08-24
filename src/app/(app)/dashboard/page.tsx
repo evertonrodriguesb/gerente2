@@ -2,7 +2,7 @@
 
 import { useStore } from '@/hooks/use-store';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart } from 'lucide-react';
+import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart, Archive } from 'lucide-react';
 import type { ReactElement, FC } from 'react';
 
 interface StatCardProps {
@@ -30,6 +30,7 @@ export default function DashboardPage() {
 
   const totalProducts = products.length;
   const totalStock = products.reduce((sum, product) => sum + product.quantity, 0);
+  const totalStockValue = products.reduce((sum, product) => sum + (product.costPrice * product.quantity), 0);
   const totalSalesValue = sales.reduce((sum, sale) => sum + sale.total, 0);
   const totalSalesCount = sales.length;
   const totalGrossProfit = sales.reduce((sum, sale) => sum + sale.grossProfit, 0);
@@ -57,6 +58,12 @@ export default function DashboardPage() {
           value={totalStock}
           description="Quantidade total de itens"
           icon={<Boxes className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatCard 
+          title="Valor do Estoque" 
+          value={formatCurrency(totalStockValue)}
+          description="Soma do custo do estoque"
+          icon={<Archive className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Vendas Realizadas" 
