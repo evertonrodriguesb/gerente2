@@ -19,6 +19,7 @@ type StoreContextType = {
   addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
   updateSupplier: (updatedSupplier: Supplier) => void;
   removeSupplier: (supplierId: string) => void;
+  clearData: () => void;
 };
 
 export const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -210,8 +211,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setSuppliers(prev => prev.filter(s => s.id !== supplierId));
   };
 
+  const clearData = () => {
+    localStorage.removeItem('products');
+    localStorage.removeItem('sales');
+    localStorage.removeItem('suppliers');
+    localStorage.removeItem('purchases');
+    window.location.reload();
+  };
+
   return (
-    <StoreContext.Provider value={{ products, sales, suppliers, purchases, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier }}>
+    <StoreContext.Provider value={{ products, sales, suppliers, purchases, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier, clearData }}>
       {children}
     </StoreContext.Provider>
   );

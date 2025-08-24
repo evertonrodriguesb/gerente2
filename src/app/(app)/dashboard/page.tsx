@@ -2,7 +2,9 @@
 
 import { useStore } from '@/hooks/use-store';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart, Archive } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart, Archive, Trash2 } from 'lucide-react';
 import type { ReactElement, FC } from 'react';
 
 interface StatCardProps {
@@ -26,7 +28,7 @@ const StatCard: FC<StatCardProps> = ({ title, value, icon, description }) => (
 );
 
 export default function DashboardPage() {
-  const { products, sales, purchases } = useStore();
+  const { products, sales, purchases, clearData } = useStore();
 
   const totalProducts = products.length;
   const totalStock = products.reduce((sum, product) => sum + product.quantity, 0);
@@ -46,7 +48,29 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Limpar Dados
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Essa ação não pode ser desfeita. Isso irá apagar permanentemente todos os produtos, vendas e compras. Os dados iniciais serão restaurados.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={clearData}>Confirmar</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard 
           title="Total de Produtos" 
