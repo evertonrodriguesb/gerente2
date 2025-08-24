@@ -24,16 +24,9 @@ type StoreContextType = {
 
 export const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
-const initialProducts: Product[] = [
-  { id: '1', name: 'Camiseta Básica', description: 'Algodão, cor preta', salePrice: 49.9, costPrice: 25, quantity: 50 },
-  { id: '2', name: 'Calça Jeans', description: 'Slim fit, azul escuro', salePrice: 129.9, costPrice: 70, quantity: 30 },
-  { id: '3', name: 'Tênis de Corrida', description: 'Leve e confortável', salePrice: 299.9, costPrice: 150, quantity: 20 },
-];
+const initialProducts: Product[] = [];
 
-const initialSuppliers: Supplier[] = [
-  { id: '1', name: 'Fornecedor de Camisetas S.A.', contact: 'contato@camisetassa.com' },
-  { id: '2', name: 'Jeans & Cia', contact: 'vendas@jeanscia.com.br' },
-];
+const initialSuppliers: Supplier[] = [];
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
