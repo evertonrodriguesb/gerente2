@@ -73,15 +73,15 @@ export default function DashboardPage() {
           icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
-          title="Custo dos Itens Vendidos" 
-          value={formatCurrency(totalCostOfGoodsSold)}
-          description="Soma do custo dos itens vendidos"
-          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatCard 
           title="Produtos Vendidos" 
           value={totalItemsSold}
           description="Quantidade total de itens vendidos"
+          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatCard 
+          title="Custo dos Itens Vendidos" 
+          value={formatCurrency(totalCostOfGoodsSold)}
+          description="Soma do custo dos itens vendidos"
           icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
