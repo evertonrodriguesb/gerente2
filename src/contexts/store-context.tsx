@@ -95,8 +95,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
   
   const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number; image?: string; }) => {
+    let productId: string;
+    let productName: string;
+
+    const existingProduct = products.find(p => p.name.toLowerCase() === purchase.name.toLowerCase());
+    if(existingProduct) {
+        productId = existingProduct.id;
+        productName = existingProduct.name;
+    } else {
+        productId = Date.now().toString();
+        productName = purchase.name;
+    }
+
     const newPurchase: Purchase = {
         id: Date.now().toString(),
+        productId: productId,
         productName: purchase.name,
         quantity: purchase.quantity,
         costPrice: purchase.costPrice,
@@ -106,7 +119,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setPurchases((prev) => [newPurchase, ...prev]);
 
     setProducts((prev) => {
-      const existingProduct = prev.find(p => p.name.toLowerCase() === purchase.name.toLowerCase());
       if (existingProduct) {
         return prev.map(p => 
           p.id === existingProduct.id 
@@ -115,7 +127,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         );
       } else {
         const newProduct: Product = {
-          id: Date.now().toString(),
+          id: productId,
           name: purchase.name,
           description: '',
           costPrice: purchase.costPrice,
@@ -136,6 +148,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   
   const removeProduct = (productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
+    setPurchases((prev) => prev.filter((p) => p.productId !== productId));
   };
 
   const addSale = (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => {

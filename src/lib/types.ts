@@ -32,6 +32,7 @@ export type Supplier = {
 
 export type Purchase = {
   id: string;
+  productId: string;
   productName: string;
   quantity: number;
   costPrice: number;
