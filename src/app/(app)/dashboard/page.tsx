@@ -26,7 +26,7 @@ const StatCard: FC<StatCardProps> = ({ title, value, icon, description }) => (
 );
 
 export default function DashboardPage() {
-  const { products, sales } = useStore();
+  const { products, sales, purchases } = useStore();
 
   const totalProducts = products.length;
   const totalStock = products.reduce((sum, product) => sum + product.quantity, 0);
@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const totalSalesCount = sales.length;
   const totalGrossProfit = sales.reduce((sum, sale) => sum + sale.grossProfit, 0);
   const totalItemsSold = sales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
-  const totalCostOfGoodsSold = totalSalesValue - totalGrossProfit;
+  const totalPurchasesValue = purchases.reduce((sum, purchase) => sum + purchase.total, 0);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -67,6 +67,12 @@ export default function DashboardPage() {
           icon={<Archive className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
+          title="Valor Total de Compras" 
+          value={formatCurrency(totalPurchasesValue)}
+          description="Soma de todos os produtos comprados"
+          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
+        />
+         <StatCard 
           title="Vendas Realizadas" 
           value={totalSalesCount}
           description="Número total de transações"
@@ -76,12 +82,6 @@ export default function DashboardPage() {
           title="Produtos Vendidos" 
           value={totalItemsSold}
           description="Quantidade total de itens vendidos"
-          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatCard 
-          title="Custo dos Itens Vendidos" 
-          value={formatCurrency(totalCostOfGoodsSold)}
-          description="Soma do custo dos itens vendidos"
           icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 

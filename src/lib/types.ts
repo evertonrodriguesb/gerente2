@@ -28,3 +28,12 @@ export type Supplier = {
   name: string;
   contact: string;
 };
+
+export type Purchase = {
+  id: string;
+  productName: string;
+  quantity: number;
+  costPrice: number;
+  total: number;
+  date: string;
+};

@@ -1,12 +1,13 @@
 'use client';
 
-import type { Product, Sale, Supplier } from '@/lib/types';
+import type { Product, Sale, Supplier, Purchase } from '@/lib/types';
 import { createContext, useState, useEffect, type ReactNode } from 'react';
 
 type StoreContextType = {
   products: Product[];
   sales: Sale[];
   suppliers: Supplier[];
+  purchases: Purchase[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   addPurchase: (purchase: { name: string; quantity: number; costPrice: number }) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
@@ -37,6 +38,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const storedProducts = localStorage.getItem('products');
       const storedSales = localStorage.getItem('sales');
       const storedSuppliers = localStorage.getItem('suppliers');
+      const storedPurchases = localStorage.getItem('purchases');
       
       if (storedProducts) {
         setProducts(JSON.parse(storedProducts));
@@ -57,6 +60,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setSuppliers(JSON.parse(storedSuppliers));
       } else {
         setSuppliers(initialSuppliers);
+      }
+       if (storedPurchases) {
+        setPurchases(JSON.parse(storedPurchases));
       }
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
@@ -84,11 +90,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
   }, [suppliers, isLoaded]);
 
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('purchases', JSON.stringify(purchases));
+    }
+  }, [purchases, isLoaded]);
+
   const addProduct = (product: Omit<Product, 'id'>) => {
     setProducts((prev) => [...prev, { ...product, id: Date.now().toString() }]);
   };
   
   const addPurchase = (purchase: { name: string; quantity: number; costPrice: number }) => {
+    const newPurchase: Purchase = {
+        id: Date.now().toString(),
+        productName: purchase.name,
+        quantity: purchase.quantity,
+        costPrice: purchase.costPrice,
+        total: purchase.quantity * purchase.costPrice,
+        date: new Date().toISOString(),
+    };
+    setPurchases((prev) => [newPurchase, ...prev]);
+
     setProducts((prev) => {
       const existingProduct = prev.find(p => p.name.toLowerCase() === purchase.name.toLowerCase());
       if (existingProduct) {
@@ -189,7 +211,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <StoreContext.Provider value={{ products, sales, suppliers, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier }}>
+    <StoreContext.Provider value={{ products, sales, suppliers, purchases, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier }}>
       {children}
     </StoreContext.Provider>
   );
