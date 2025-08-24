@@ -24,13 +24,14 @@ export default function ComprasPage() {
     name: '',
     quantity: 0,
     costPrice: 0,
+    salePrice: 0,
   });
 
   const handleAddPurchase = () => {
-    if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0) {
+    if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0 && newPurchase.salePrice > 0) {
       addPurchase(newPurchase);
       toast({ title: 'Sucesso!', description: 'Compra registrada e estoque atualizado.' });
-      setNewPurchase({ name: '', quantity: 0, costPrice: 0 });
+      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0 });
       setIsAddDialogOpen(false);
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha todos os campos corretamente.' });
@@ -92,9 +93,13 @@ export default function ComprasPage() {
                     <Input id="quantity" type="number" value={newPurchase.quantity} onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) || 0 })} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="price">Custo por Unidade (R$)</Label>
-                    <Input id="price" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
+                    <Label htmlFor="costPrice">Custo por Unidade (R$)</Label>
+                    <Input id="costPrice" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
                   </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="salePrice">Preço de Venda (R$)</Label>
+                  <Input id="salePrice" type="number" value={newPurchase.salePrice} onChange={(e) => setNewPurchase({ ...newPurchase, salePrice: parseFloat(e.target.value) || 0 })} />
                 </div>
               </div>
               <Button onClick={handleAddPurchase} className="w-full">Salvar Compra</Button>

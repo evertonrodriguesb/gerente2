@@ -9,7 +9,7 @@ type StoreContextType = {
   suppliers: Supplier[];
   purchases: Purchase[];
   addProduct: (product: Omit<Product, 'id'>) => void;
-  addPurchase: (purchase: { name: string; quantity: number; costPrice: number }) => void;
+  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number }) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
@@ -94,7 +94,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setProducts((prev) => [...prev, { ...product, id: Date.now().toString() }]);
   };
   
-  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number }) => {
+  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number }) => {
     const newPurchase: Purchase = {
         id: Date.now().toString(),
         productName: purchase.name,
@@ -110,7 +110,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (existingProduct) {
         return prev.map(p => 
           p.id === existingProduct.id 
-            ? { ...p, quantity: p.quantity + purchase.quantity, costPrice: purchase.costPrice } 
+            ? { ...p, quantity: p.quantity + purchase.quantity, costPrice: purchase.costPrice, salePrice: purchase.salePrice } 
             : p
         );
       } else {
@@ -119,7 +119,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           name: purchase.name,
           description: '',
           costPrice: purchase.costPrice,
-          salePrice: 0, 
+          salePrice: purchase.salePrice, 
           quantity: purchase.quantity,
         };
         return [...prev, newProduct];
