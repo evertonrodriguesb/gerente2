@@ -9,7 +9,7 @@ type StoreContextType = {
   suppliers: Supplier[];
   purchases: Purchase[];
   addProduct: (product: Omit<Product, 'id'>) => void;
-  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number }) => void;
+  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number, image?: string }) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
@@ -94,7 +94,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setProducts((prev) => [...prev, { ...product, id: Date.now().toString() }]);
   };
   
-  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number }) => {
+  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number; image?: string; }) => {
     const newPurchase: Purchase = {
         id: Date.now().toString(),
         productName: purchase.name,
@@ -110,7 +110,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (existingProduct) {
         return prev.map(p => 
           p.id === existingProduct.id 
-            ? { ...p, quantity: p.quantity + purchase.quantity, costPrice: purchase.costPrice, salePrice: purchase.salePrice } 
+            ? { ...p, quantity: p.quantity + purchase.quantity, costPrice: purchase.costPrice, salePrice: purchase.salePrice, image: purchase.image || p.image } 
             : p
         );
       } else {
@@ -121,6 +121,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           costPrice: purchase.costPrice,
           salePrice: purchase.salePrice, 
           quantity: purchase.quantity,
+          image: purchase.image,
         };
         return [...prev, newProduct];
       }

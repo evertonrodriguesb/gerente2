@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useStore } from '@/hooks/use-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,13 +26,25 @@ export default function ComprasPage() {
     quantity: 0,
     costPrice: 0,
     salePrice: 0,
+    image: '',
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewPurchase({ ...newPurchase, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleAddPurchase = () => {
     if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0 && newPurchase.salePrice > 0) {
       addPurchase(newPurchase);
       toast({ title: 'Sucesso!', description: 'Compra registrada e estoque atualizado.' });
-      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0 });
+      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0, image: '' });
       setIsAddDialogOpen(false);
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha todos os campos corretamente.' });
@@ -46,6 +59,17 @@ export default function ComprasPage() {
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
     setIsEditDialogOpen(true);
+  };
+  
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editingProduct) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditingProduct({ ...editingProduct, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleUpdateProduct = () => {
@@ -97,9 +121,15 @@ export default function ComprasPage() {
                     <Input id="costPrice" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
                   </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="salePrice">Preço de Venda (R$)</Label>
-                  <Input id="salePrice" type="number" value={newPurchase.salePrice} onChange={(e) => setNewPurchase({ ...newPurchase, salePrice: parseFloat(e.target.value) || 0 })} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="salePrice">Preço de Venda (R$)</Label>
+                    <Input id="salePrice" type="number" value={newPurchase.salePrice} onChange={(e) => setNewPurchase({ ...newPurchase, salePrice: parseFloat(e.target.value) || 0 })} />
+                  </div>
+                   <div className="grid gap-2">
+                    <Label htmlFor="image">Imagem do Produto</Label>
+                    <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="pt-2" />
+                  </div>
                 </div>
               </div>
               <Button onClick={handleAddPurchase} className="w-full">Salvar Compra</Button>
@@ -110,6 +140,7 @@ export default function ComprasPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Imagem</TableHead>
                 <TableHead>Produto</TableHead>
                 <TableHead>Estoque Atual</TableHead>
                 <TableHead>Preço de Compra</TableHead>
@@ -119,6 +150,13 @@ export default function ComprasPage() {
             <TableBody>
               {products.length > 0 ? products.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>
+                    {product.image ? (
+                        <Image src={product.image} alt={product.name} width={40} height={40} className="rounded-md object-cover h-10 w-10" />
+                    ) : (
+                      <div className="h-10 w-10 bg-muted rounded-md" />
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>{formatCurrency(product.costPrice)}</TableCell>
@@ -151,7 +189,7 @@ export default function ComprasPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     Nenhum produto cadastrado.
                   </TableCell>
                 </TableRow>
@@ -175,6 +213,10 @@ export default function ComprasPage() {
               <div className="grid gap-2">
                 <Label htmlFor="edit-cost">Custo por Unidade (R$)</Label>
                 <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-image">Imagem do Produto</Label>
+                <Input id="edit-image" type="file" accept="image/*" onChange={handleEditImageChange} className="pt-2"/>
               </div>
             </div>
           )}

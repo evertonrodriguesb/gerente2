@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useStore } from '@/hooks/use-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -165,7 +166,16 @@ export default function VendasPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {products.filter(p => p.quantity > 0).map(p => (
-                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.quantity} disp.)</SelectItem>
+                        <SelectItem key={p.id} value={p.id}>
+                          <div className="flex items-center gap-2">
+                            {p.image ? (
+                                <Image src={p.image} alt={p.name} width={24} height={24} className="rounded-sm object-cover h-6 w-6" />
+                            ) : (
+                              <div className="h-6 w-6 bg-muted rounded-sm" />
+                            )}
+                            {p.name} ({p.quantity} disp.)
+                          </div>
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

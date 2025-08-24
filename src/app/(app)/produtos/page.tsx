@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useStore } from '@/hooks/use-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +37,17 @@ export default function ProdutosPage() {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha os campos obrigatórios.' });
     }
   }
+
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editingProduct) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditingProduct({ ...editingProduct, image: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   const confirmDeleteProduct = (productId: string) => {
     removeProduct(productId);
@@ -55,6 +67,7 @@ export default function ProdutosPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Imagem</TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Preço de Venda</TableHead>
@@ -66,6 +79,13 @@ export default function ProdutosPage() {
             <TableBody>
               {products.length > 0 ? products.map((product) => (
                 <TableRow key={product.id}>
+                  <TableCell>
+                    {product.image ? (
+                        <Image src={product.image} alt={product.name} width={40} height={40} className="rounded-md object-cover h-10 w-10" />
+                    ) : (
+                      <div className="h-10 w-10 bg-muted rounded-md" />
+                    )}
+                  </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.description}</TableCell>
                   <TableCell>{formatCurrency(product.salePrice)}</TableCell>
@@ -100,7 +120,7 @@ export default function ProdutosPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     Nenhum produto cadastrado.
                   </TableCell>
                 </TableRow>
@@ -122,7 +142,7 @@ export default function ProdutosPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="edit-description">Descrição</Label>
-                  <Textarea id="edit-description" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+                  <Textarea id="edit-description" value={editingProduct.description || ''} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
@@ -134,9 +154,15 @@ export default function ProdutosPage() {
                     <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
                   </div>
                 </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="edit-quantity">Quantidade</Label>
-                    <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="edit-quantity">Quantidade</Label>
+                        <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="edit-image">Imagem</Label>
+                        <Input id="edit-image" type="file" accept="image/*" onChange={handleEditImageChange} className="pt-2" />
+                    </div>
                 </div>
               </div>
             )}

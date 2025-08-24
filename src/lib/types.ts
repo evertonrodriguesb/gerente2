@@ -5,6 +5,7 @@ export type Product = {
   salePrice: number;
   costPrice: number;
   quantity: number;
+  image?: string;
 };
 
 export type SaleItem = {
