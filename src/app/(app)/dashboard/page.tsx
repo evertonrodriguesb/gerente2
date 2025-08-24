@@ -35,6 +35,7 @@ export default function DashboardPage() {
   const totalSalesCount = sales.length;
   const totalGrossProfit = sales.reduce((sum, sale) => sum + sale.grossProfit, 0);
   const totalItemsSold = sales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+  const totalCostOfGoodsSold = totalSalesValue - totalGrossProfit;
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -46,7 +47,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard 
           title="Total de Produtos" 
           value={totalProducts}
@@ -64,6 +65,12 @@ export default function DashboardPage() {
           value={formatCurrency(totalStockValue)}
           description="Soma do custo do estoque"
           icon={<Archive className="h-4 w-4 text-muted-foreground" />}
+        />
+         <StatCard 
+          title="Custo dos Itens Vendidos" 
+          value={formatCurrency(totalCostOfGoodsSold)}
+          description="Soma do custo dos itens vendidos"
+          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Vendas Realizadas" 
