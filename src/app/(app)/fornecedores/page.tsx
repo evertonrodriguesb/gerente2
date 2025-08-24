@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -15,7 +16,7 @@ import { PlusCircle, Trash2, Edit } from 'lucide-react';
 import type { Product } from '@/lib/types';
 
 export default function ComprasPage() {
-  const { products, addPurchase, removeProduct, updateProduct } = useStore();
+  const { products, addPurchase, removeProduct, updateProduct, purchases } = useStore();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -86,6 +87,12 @@ export default function ComprasPage() {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
+  
+  const getTotalPurchased = (productId: string) => {
+    return purchases
+      .filter(p => p.productId === productId)
+      .reduce((total, purchase) => total + purchase.quantity, 0);
+  };
 
   return (
     <>
@@ -143,6 +150,7 @@ export default function ComprasPage() {
                 <TableHead>Imagem</TableHead>
                 <TableHead>Produto</TableHead>
                 <TableHead>Estoque Atual</TableHead>
+                <TableHead>Total Comprado</TableHead>
                 <TableHead>Preço de Compra</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -159,6 +167,7 @@ export default function ComprasPage() {
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>{product.quantity}</TableCell>
+                  <TableCell>{getTotalPurchased(product.id)}</TableCell>
                   <TableCell>{formatCurrency(product.costPrice)}</TableCell>
                   <TableCell className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
@@ -189,7 +198,7 @@ export default function ComprasPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     Nenhum produto cadastrado.
                   </TableCell>
                 </TableRow>
