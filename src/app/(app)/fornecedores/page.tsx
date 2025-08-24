@@ -78,7 +78,7 @@ export default function ComprasPage() {
               <DialogHeader>
                 <DialogTitle>Registrar Nova Compra de Produto</DialogTitle>
                 <DialogDescription className="!mt-4">
-                  Caso inserir incorretamente ou esquecer de alguma quantidade, registre outra compra para complementar a quantidade.
+                  Caso inserir incorretamente ou esquecer de alguma quantidade, registre outra compra para complementar.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
