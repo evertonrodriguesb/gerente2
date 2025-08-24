@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -14,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { PlusCircle, Trash2, Edit } from 'lucide-react';
 import type { Product } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ComprasPage() {
   const { products, addPurchase, removeProduct, updateProduct, purchases } = useStore();
@@ -21,6 +21,8 @@ export default function ComprasPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isNewProduct, setIsNewProduct] = useState(false);
+
 
   const [newPurchase, setNewPurchase] = useState({
     name: '',
@@ -47,6 +49,7 @@ export default function ComprasPage() {
       toast({ title: 'Sucesso!', description: 'Compra registrada e estoque atualizado.' });
       setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0, image: '' });
       setIsAddDialogOpen(false);
+      setIsNewProduct(false);
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha todos os campos corretamente.' });
     }
@@ -94,12 +97,22 @@ export default function ComprasPage() {
       .reduce((total, purchase) => total + purchase.quantity, 0);
   };
 
+  const handleProductSelect = (value: string) => {
+    if (value === 'new') {
+      setIsNewProduct(true);
+      setNewPurchase({ ...newPurchase, name: '' });
+    } else {
+      setIsNewProduct(false);
+      setNewPurchase({ ...newPurchase, name: value });
+    }
+  }
+
   return (
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Registro de Compras</CardTitle>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if(!isOpen) setIsNewProduct(false); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
                 <PlusCircle className="h-3.5 w-3.5" />
@@ -115,9 +128,29 @@ export default function ComprasPage() {
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="name">Nome do Produto</Label>
-                  <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
+                  <Label htmlFor="product-select">Produto</Label>
+                  <Select onValueChange={handleProductSelect} value={isNewProduct ? 'new' : newPurchase.name}>
+                    <SelectTrigger id="product-select">
+                      <SelectValue placeholder="Selecione um produto ou crie um novo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">Cadastrar novo produto...</SelectItem>
+                      {products.map(product => (
+                        <SelectItem key={product.id} value={product.name}>
+                          {product.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {isNewProduct && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Nome do Novo Produto</Label>
+                    <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="quantity">Quantidade Comprada</Label>
