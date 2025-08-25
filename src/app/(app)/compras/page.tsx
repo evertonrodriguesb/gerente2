@@ -25,7 +25,9 @@ export default function ComprasHistoricoPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  
+  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedYear, setSelectedYear] = useState('all');
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
@@ -58,9 +60,22 @@ export default function ComprasHistoricoPage() {
     }
   };
 
+  const availableYears = Array.from(new Set(purchases.map(p => new Date(p.date).getFullYear().toString())));
+  const availableMonths = [
+    { value: '1', label: 'Janeiro' }, { value: '2', label: 'Fevereiro' },
+    { value: '3', label: 'Março' }, { value: '4', label: 'Abril' },
+    { value: '5', label: 'Maio' }, { value: '6', label: 'Junho' },
+    { value: '7', label: 'Julho' }, { value: '8', label: 'Agosto' },
+    { value: '9', label: 'Setembro' }, { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' }, { value: '12', label: 'Dezembro' }
+  ];
+
   const filteredPurchases = purchases.filter(purchase => {
+    const purchaseDate = new Date(purchase.date);
     const categoryMatch = selectedCategory === 'all' || getProductById(purchase.productId)?.categoryId === selectedCategory;
-    return categoryMatch;
+    const monthMatch = selectedMonth === 'all' || (purchaseDate.getMonth() + 1).toString() === selectedMonth;
+    const yearMatch = selectedYear === 'all' || purchaseDate.getFullYear().toString() === selectedYear;
+    return categoryMatch && monthMatch && yearMatch;
   });
 
   return (
@@ -78,6 +93,32 @@ export default function ComprasHistoricoPage() {
                 {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por mês" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os meses</SelectItem>
+                {availableMonths.map(month => (
+                  <SelectItem key={month.value} value={month.value}>
+                    {month.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+             <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Filtrar por ano" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os anos</SelectItem>
+                {availableYears.map(year => (
+                  <SelectItem key={year} value={year}>
+                    {year}
                   </SelectItem>
                 ))}
               </SelectContent>
