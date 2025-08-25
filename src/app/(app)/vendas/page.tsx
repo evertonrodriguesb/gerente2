@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, ShoppingCart, Trash2, Edit, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, ShoppingCart, Trash2, Edit, Calendar as CalendarIcon, MinusCircle } from 'lucide-react';
 import type { Sale, SaleItem } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -30,6 +30,7 @@ export default function VendasPage() {
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [discount, setDiscount] = useState(0);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -86,13 +87,15 @@ export default function VendasPage() {
       toast({ variant: 'destructive', title: 'Erro', description: 'Adicione produtos ao carrinho.' });
       return;
     }
-    addSale({ items: cart });
+    addSale({ items: cart, discount });
     toast({ title: 'Sucesso!', description: 'Venda registrada com sucesso.' });
     setCart([]);
+    setDiscount(0);
     setIsRegisterDialogOpen(false);
   };
 
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartSubtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartTotal = cartSubtotal - discount;
 
   const handleEditSale = (sale: Sale) => {
     setEditingSale(sale);
@@ -159,65 +162,91 @@ export default function VendasPage() {
                 Registrar Venda
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl">
               <DialogHeader>
                 <DialogTitle>Registrar Nova Venda</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-3 gap-4 py-4">
-                <div className="col-span-2">
-                  <Label>Produto</Label>
-                  <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um produto" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.filter(p => p.quantity > 0).map(p => (
-                        <SelectItem key={p.id} value={p.id}>
-                          <div className="flex items-center gap-2">
-                            {p.image ? (
-                                <Image src={p.image} alt={p.name} width={24} height={24} className="rounded-sm object-cover h-6 w-6" />
-                            ) : (
-                              <div className="h-6 w-6 bg-muted rounded-sm" />
-                            )}
-                            {p.name} ({p.quantity} disp.)
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
+                {/* Lado Esquerdo: Adicionar Itens */}
                 <div>
-                  <Label>Quantidade</Label>
-                  <Input type="number" value={quantity} onChange={e => setQuantity(Number(e.target.value))} min={1} />
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2">
+                      <Label>Produto</Label>
+                      <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um produto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.filter(p => p.quantity > 0).map(p => (
+                            <SelectItem key={p.id} value={p.id}>
+                              <div className="flex items-center gap-2">
+                                {p.image ? (
+                                    <Image src={p.image} alt={p.name} width={24} height={24} className="rounded-sm object-cover h-6 w-6" />
+                                ) : (
+                                  <div className="h-6 w-6 bg-muted rounded-sm" />
+                                )}
+                                {p.name} ({p.quantity} disp.)
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Quantidade</Label>
+                      <Input type="number" value={quantity} onChange={e => setQuantity(Number(e.target.value))} min={1} />
+                    </div>
+                  </div>
+                  <Button onClick={handleAddToCart} className="w-full mt-4"><PlusCircle className="mr-2 h-4 w-4" />Adicionar Item</Button>
                 </div>
-              </div>
-              <Button onClick={handleAddToCart}><PlusCircle className="mr-2 h-4 w-4" />Adicionar Item</Button>
 
-              <div className="mt-4">
-                <h3 className="font-semibold mb-2">Itens da Venda:</h3>
-                <div className="max-h-48 overflow-y-auto border rounded-md">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Produto</TableHead><TableHead>Qtd.</TableHead><TableHead>Preço</TableHead><TableHead>Subtotal</TableHead><TableHead></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {cart.map(item => (
-                        <TableRow key={item.productId}>
-                          <TableCell>{item.productName}</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>{formatCurrency(item.price)}</TableCell>
-                          <TableCell>{formatCurrency(item.price * item.quantity)}</TableCell>
-                          <TableCell><Button variant="ghost" size="icon" onClick={() => handleRemoveFromCart(item.productId)}><Trash2 className="h-4 w-4 text-destructive"/></Button></TableCell>
+                {/* Lado Direito: Carrinho e Total */}
+                <div>
+                  <h3 className="font-semibold mb-2">Itens da Venda:</h3>
+                  <div className="max-h-48 overflow-y-auto border rounded-md">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Produto</TableHead><TableHead>Qtd.</TableHead><TableHead>Preço</TableHead><TableHead>Subtotal</TableHead><TableHead></TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {cart.length === 0 && <p className="text-center text-sm text-muted-foreground p-4">Nenhum item na venda.</p>}
-                </div>
-                <div className="text-right mt-2 font-bold text-lg">
-                  Total: {formatCurrency(cartTotal)}
+                      </TableHeader>
+                      <TableBody>
+                        {cart.map(item => (
+                          <TableRow key={item.productId}>
+                            <TableCell>{item.productName}</TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>{formatCurrency(item.price)}</TableCell>
+                            <TableCell>{formatCurrency(item.price * item.quantity)}</TableCell>
+                            <TableCell><Button variant="ghost" size="icon" onClick={() => handleRemoveFromCart(item.productId)}><Trash2 className="h-4 w-4 text-destructive"/></Button></TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    {cart.length === 0 && <p className="text-center text-sm text-muted-foreground p-4">Nenhum item na venda.</p>}
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Subtotal:</span>
+                      <span className="font-medium">{formatCurrency(cartSubtotal)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="discount" className="flex items-center gap-2 text-muted-foreground">
+                        <MinusCircle className="h-4 w-4" />
+                        Desconto (R$):
+                      </Label>
+                      <Input 
+                        id="discount"
+                        type="number" 
+                        value={discount} 
+                        onChange={e => setDiscount(Math.max(0, Number(e.target.value)))} 
+                        className="w-24 h-8"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center text-lg font-bold">
+                      <span>Total:</span>
+                      <span>{formatCurrency(cartTotal)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -232,7 +261,7 @@ export default function VendasPage() {
                 <TableHead>Imagem</TableHead>
                 <TableHead>Data da Venda</TableHead>
                 <TableHead>Itens</TableHead>
-                <TableHead>Quantidade</TableHead>
+                <TableHead>Desconto</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Lucro Bruto</TableHead>
                 <TableHead>Ações</TableHead>
@@ -252,7 +281,7 @@ export default function VendasPage() {
                   </TableCell>
                   <TableCell>{formatDate(sale.date)}</TableCell>
                   <TableCell>{sale.items.map(i => i.productName).join(', ')}</TableCell>
-                  <TableCell>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</TableCell>
+                  <TableCell>{formatCurrency(sale.discount || 0)}</TableCell>
                   <TableCell>{formatCurrency(sale.total)}</TableCell>
                   <TableCell>{formatCurrency(sale.grossProfit)}</TableCell>
                   <TableCell className="flex gap-2">

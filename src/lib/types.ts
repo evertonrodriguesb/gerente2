@@ -22,6 +22,7 @@ export type Sale = {
   total: number;
   grossProfit: number;
   date: string;
+  discount?: number;
 };
 
 export type Supplier = {

@@ -147,17 +147,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
   
   const removeProduct = (productId: string) => {
+    const purchasesToRemove = purchases.filter(p => p.productId === productId);
     setProducts((prev) => prev.filter((p) => p.id !== productId));
     setPurchases((prev) => prev.filter((p) => p.productId !== productId));
   };
 
   const addSale = (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => {
-    let total = 0;
+    let subtotal = 0;
     let totalCost = 0;
     const updatedProducts = [...products];
 
     sale.items.forEach((item) => {
-      total += item.price * item.quantity;
+      subtotal += item.price * item.quantity;
       totalCost += item.costPrice * item.quantity;
       const productIndex = updatedProducts.findIndex((p) => p.id === item.productId);
       if (productIndex !== -1) {
@@ -165,6 +166,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    const total = subtotal - (sale.discount || 0);
     const grossProfit = total - totalCost;
     setProducts(updatedProducts);
 
