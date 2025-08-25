@@ -24,6 +24,7 @@ export default function ComprasPage() {
   const [isNewProduct, setIsNewProduct] = useState(false);
   const [isNewCategory, setIsNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const [newPurchase, setNewPurchase] = useState({
     name: '',
@@ -134,11 +135,30 @@ export default function ComprasPage() {
     }
   }
 
+  const filteredProducts = selectedCategory === 'all'
+    ? products
+    : products.filter(product => product.categoryId === selectedCategory);
+
   return (
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Registro de Compras</CardTitle>
+          <div className="flex items-center gap-4">
+            <CardTitle>Registro de Compras</CardTitle>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+                {categories.map(category => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if(!isOpen) { setIsNewProduct(false); setIsNewCategory(false); setNewCategoryName(''); } }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
@@ -241,7 +261,7 @@ export default function ComprasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.length > 0 ? products.map((product) => (
+              {filteredProducts.length > 0 ? filteredProducts.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell>
                     {product.image ? (
@@ -284,7 +304,7 @@ export default function ComprasPage() {
               )) : (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
-                    Nenhum produto cadastrado.
+                    Nenhum produto cadastrado para esta categoria.
                   </TableCell>
                 </TableRow>
               )}
