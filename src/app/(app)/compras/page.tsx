@@ -100,10 +100,29 @@ export default function ComprasHistoricoPage() {
                       <Calendar
                           mode="single"
                           selected={selectedDate}
-                          onSelect={setSelectedDate}
+                          onSelect={(date) => {
+                              if (date) {
+                                  setSelectedDate(new Date(date.getFullYear(), date.getMonth(), 1));
+                              } else {
+                                  setSelectedDate(undefined);
+                              }
+                          }}
                           initialFocus
                           locale={ptBR}
                           captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear() + 1}
+                          classNames={{
+                              day: "hidden",
+                              day_outside: "hidden",
+                              head_cell: "hidden",
+                              row: "flex flex-col",
+                              month: "space-y-0",
+                              caption_label: "w-full text-center",
+                              nav_button: "absolute top-1/2 -translate-y-1/2",
+                              nav_button_previous: "left-2",
+                              nav_button_next: "right-2",
+                              caption: "flex relative items-center justify-center p-2",
+                              table: "border-separate border-spacing-0",
+                          }}
                       />
                   </PopoverContent>
               </Popover>
