@@ -25,8 +25,7 @@ export default function ComprasHistoricoPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-
+  
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
@@ -60,13 +59,8 @@ export default function ComprasHistoricoPage() {
   };
 
   const filteredPurchases = purchases.filter(purchase => {
-    const purchaseDate = new Date(purchase.date);
     const categoryMatch = selectedCategory === 'all' || getProductById(purchase.productId)?.categoryId === selectedCategory;
-    const dateMatch = !selectedDate || (
-      purchaseDate.getFullYear() === selectedDate.getFullYear() &&
-      purchaseDate.getMonth() === selectedDate.getMonth()
-    );
-    return categoryMatch && dateMatch;
+    return categoryMatch;
   });
 
   return (
@@ -88,52 +82,6 @@ export default function ComprasHistoricoPage() {
                 ))}
               </SelectContent>
             </Select>
-            <div className="flex items-center gap-2">
-              <Popover>
-                  <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-[280px] justify-start text-left font-normal">
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "MMMM 'de' yyyy", { locale: ptBR }) : <span>Selecione um mês</span>}
-                      </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                      <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) => {
-                              if (date) {
-                                  setSelectedDate(new Date(date.getFullYear(), date.getMonth(), 1));
-                              } else {
-                                  setSelectedDate(undefined);
-                              }
-                          }}
-                          initialFocus
-                          locale={ptBR}
-                          captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear() + 1}
-                          classNames={{
-                              day: "hidden",
-                              day_outside: "hidden",
-                              head_cell: "hidden",
-                              row: "grid grid-cols-3 gap-2",
-                              cell: "p-0",
-                              month: "space-y-0",
-                              caption_label: "w-full text-center",
-                              nav_button: "absolute top-1/2 -translate-y-1/2",
-                              nav_button_previous: "left-2",
-                              nav_button_next: "right-2",
-                              caption: "flex relative items-center justify-center p-2",
-                              table: "border-separate border-spacing-0",
-                          }}
-                      />
-                  </PopoverContent>
-              </Popover>
-              {selectedDate && (
-                <Button variant="ghost" size="icon" onClick={() => setSelectedDate(undefined)}>
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Limpar data</span>
-                </Button>
-              )}
-            </div>
           </div>
         </CardHeader>
         <CardContent>
