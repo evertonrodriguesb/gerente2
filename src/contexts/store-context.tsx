@@ -141,13 +141,38 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProduct = (updatedProduct: Product) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
+    const originalProduct = products.find(p => p.id === updatedProduct.id);
+    if (!originalProduct) return;
+
+    const costPriceDifference = updatedProduct.costPrice - originalProduct.costPrice;
+    
+    // This is not standard accounting, but fulfills the request to update total purchase value.
+    if (costPriceDifference !== 0) {
+        const totalQuantityPurchased = purchases
+            .filter(p => p.productId === updatedProduct.id)
+            .reduce((sum, purchase) => sum + purchase.quantity, 0);
+
+        setPurchases(prevPurchases => 
+            prevPurchases.map(p => {
+                if (p.productId === updatedProduct.id) {
+                    // We adjust the total of each past purchase proportionally.
+                    // A more accurate way might be to create a single adjustment entry,
+                    // but this approach directly modifies the historical totals.
+                    const quantityRatio = p.quantity / totalQuantityPurchased;
+                    const totalAdjustment = costPriceDifference * p.quantity;
+                    return { ...p, costPrice: updatedProduct.costPrice, total: p.total + totalAdjustment };
+                }
+                return p;
+            })
+        );
+    }
+
+    setProducts(prevProducts =>
+      prevProducts.map(p => (p.id === updatedProduct.id ? updatedProduct : p))
     );
   };
   
   const removeProduct = (productId: string) => {
-    const purchasesToRemove = purchases.filter(p => p.productId === productId);
     setProducts((prev) => prev.filter((p) => p.id !== productId));
     setPurchases((prev) => prev.filter((p) => p.productId !== productId));
   };
