@@ -1,6 +1,6 @@
 'use client';
 
-import type { Product, Sale, Supplier, Purchase } from '@/lib/types';
+import type { Product, Sale, Supplier, Purchase, Category } from '@/lib/types';
 import { createContext, useState, useEffect, type ReactNode } from 'react';
 
 type StoreContextType = {
@@ -8,8 +8,9 @@ type StoreContextType = {
   sales: Sale[];
   suppliers: Supplier[];
   purchases: Purchase[];
+  categories: Category[];
   addProduct: (product: Omit<Product, 'id'>) => void;
-  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number, image?: string }) => void;
+  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number, image?: string, categoryId?: string }) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
@@ -19,20 +20,23 @@ type StoreContextType = {
   addSupplier: (supplier: Omit<Supplier, 'id'>) => void;
   updateSupplier: (updatedSupplier: Supplier) => void;
   removeSupplier: (supplierId: string) => void;
+  addCategory: (categoryName: string) => Category;
+  getCategoryById: (id: string) => Category | undefined;
   clearData: () => void;
 };
 
 export const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 const initialProducts: Product[] = [];
-
 const initialSuppliers: Supplier[] = [];
+const initialCategories: Category[] = [];
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -41,60 +45,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const storedSales = localStorage.getItem('sales');
       const storedSuppliers = localStorage.getItem('suppliers');
       const storedPurchases = localStorage.getItem('purchases');
+      const storedCategories = localStorage.getItem('categories');
       
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts));
-      } else {
-        setProducts(initialProducts);
-      }
-      if (storedSales) {
-        setSales(JSON.parse(storedSales));
-      }
-      if (storedSuppliers) {
-        setSuppliers(JSON.parse(storedSuppliers));
-      } else {
-        setSuppliers(initialSuppliers);
-      }
-       if (storedPurchases) {
-        setPurchases(JSON.parse(storedPurchases));
-      }
+      if (storedProducts) setProducts(JSON.parse(storedProducts));
+      else setProducts(initialProducts);
+
+      if (storedSales) setSales(JSON.parse(storedSales));
+      
+      if (storedSuppliers) setSuppliers(JSON.parse(storedSuppliers));
+      else setSuppliers(initialSuppliers);
+      
+      if (storedPurchases) setPurchases(JSON.parse(storedPurchases));
+
+      if(storedCategories) setCategories(JSON.parse(storedCategories));
+      else setCategories(initialCategories);
+
     } catch (error) {
       console.error("Failed to parse from localStorage", error);
       setProducts(initialProducts);
       setSuppliers(initialSuppliers);
+      setCategories(initialCategories);
     }
     setIsLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if(isLoaded) {
-      localStorage.setItem('products', JSON.stringify(products));
-    }
-  }, [products, isLoaded]);
-
-  useEffect(() => {
-    if(isLoaded) {
-      localStorage.setItem('sales', JSON.stringify(sales));
-    }
-  }, [sales, isLoaded]);
-
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('suppliers', JSON.stringify(suppliers));
-    }
-  }, [suppliers, isLoaded]);
-
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem('purchases', JSON.stringify(purchases));
-    }
-  }, [purchases, isLoaded]);
+  useEffect(() => { if(isLoaded) localStorage.setItem('products', JSON.stringify(products)); }, [products, isLoaded]);
+  useEffect(() => { if(isLoaded) localStorage.setItem('sales', JSON.stringify(sales)); }, [sales, isLoaded]);
+  useEffect(() => { if (isLoaded) localStorage.setItem('suppliers', JSON.stringify(suppliers)); }, [suppliers, isLoaded]);
+  useEffect(() => { if (isLoaded) localStorage.setItem('purchases', JSON.stringify(purchases)); }, [purchases, isLoaded]);
+  useEffect(() => { if (isLoaded) localStorage.setItem('categories', JSON.stringify(categories)); }, [categories, isLoaded]);
 
   const addProduct = (product: Omit<Product, 'id'>) => {
     setProducts((prev) => [...prev, { ...product, id: Date.now().toString() }]);
   };
   
-  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number; image?: string; }) => {
+  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number; image?: string; categoryId?: string }) => {
     let productId: string;
     let productName: string;
 
@@ -122,7 +107,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (existingProduct) {
         return prev.map(p => 
           p.id === existingProduct.id 
-            ? { ...p, quantity: p.quantity + purchase.quantity, costPrice: purchase.costPrice, salePrice: purchase.salePrice, image: purchase.image || p.image } 
+            ? { ...p, quantity: p.quantity + purchase.quantity, costPrice: purchase.costPrice, salePrice: purchase.salePrice, image: purchase.image || p.image, categoryId: purchase.categoryId || p.categoryId } 
             : p
         );
       } else {
@@ -134,6 +119,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           salePrice: purchase.salePrice, 
           quantity: purchase.quantity,
           image: purchase.image,
+          categoryId: purchase.categoryId
         };
         return [...prev, newProduct];
       }
@@ -146,25 +132,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     const costPriceDifference = updatedProduct.costPrice - originalProduct.costPrice;
     
-    // This is not standard accounting, but fulfills the request to update total purchase value.
     if (costPriceDifference !== 0) {
         const totalQuantityPurchased = purchases
             .filter(p => p.productId === updatedProduct.id)
             .reduce((sum, purchase) => sum + purchase.quantity, 0);
 
-        setPurchases(prevPurchases => 
-            prevPurchases.map(p => {
-                if (p.productId === updatedProduct.id) {
-                    // We adjust the total of each past purchase proportionally.
-                    // A more accurate way might be to create a single adjustment entry,
-                    // but this approach directly modifies the historical totals.
-                    const quantityRatio = p.quantity / totalQuantityPurchased;
-                    const totalAdjustment = costPriceDifference * p.quantity;
-                    return { ...p, costPrice: updatedProduct.costPrice, total: p.total + totalAdjustment };
-                }
-                return p;
-            })
-        );
+        if (totalQuantityPurchased > 0) {
+            setPurchases(prevPurchases => 
+                prevPurchases.map(p => {
+                    if (p.productId === updatedProduct.id) {
+                        const totalAdjustment = costPriceDifference * p.quantity;
+                        return { ...p, costPrice: updatedProduct.costPrice, total: p.total + totalAdjustment };
+                    }
+                    return p;
+                })
+            );
+        }
     }
 
     setProducts(prevProducts =>
@@ -244,17 +227,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const removeSupplier = (supplierId: string) => {
     setSuppliers(prev => prev.filter(s => s.id !== supplierId));
   };
+  
+  const addCategory = (categoryName: string): Category => {
+    const newCategory = { id: Date.now().toString(), name: categoryName };
+    setCategories(prev => [...prev, newCategory]);
+    return newCategory;
+  };
+
+  const getCategoryById = (id: string) => {
+    return categories.find(c => c.id === id);
+  }
 
   const clearData = () => {
-    localStorage.removeItem('products');
-    localStorage.removeItem('sales');
-    localStorage.removeItem('suppliers');
-    localStorage.removeItem('purchases');
+    localStorage.clear();
     window.location.reload();
   };
 
   return (
-    <StoreContext.Provider value={{ products, sales, suppliers, purchases, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier, clearData }}>
+    <StoreContext.Provider value={{ products, sales, suppliers, purchases, categories, addCategory, getCategoryById, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier, clearData }}>
       {children}
     </StoreContext.Provider>
   );

@@ -14,9 +14,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Edit, Trash2 } from 'lucide-react';
 import type { Product } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
 
 export default function ProdutosPage() {
-  const { products, updateProduct, removeProduct } = useStore();
+  const { products, updateProduct, removeProduct, getCategoryById } = useStore();
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   
@@ -69,6 +70,7 @@ export default function ProdutosPage() {
               <TableRow>
                 <TableHead>Imagem</TableHead>
                 <TableHead>Nome</TableHead>
+                <TableHead>Categoria</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Preço de Venda</TableHead>
                 <TableHead>Custo</TableHead>
@@ -77,50 +79,56 @@ export default function ProdutosPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.length > 0 ? products.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    {product.image ? (
-                        <Image src={product.image} alt={product.name} width={64} height={64} className="rounded-md object-cover h-16 w-16" />
-                    ) : (
-                      <div className="h-16 w-16 bg-muted rounded-md" />
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{product.description}</TableCell>
-                  <TableCell>{formatCurrency(product.salePrice)}</TableCell>
-                  <TableCell>{formatCurrency(product.costPrice)}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell className="flex gap-2">
-                    <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Editar Produto</span>
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="icon">
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Remover Produto</span>
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Essa ação não pode ser desfeita. Isso irá remover permanentemente o produto "{product?.name}" do seu estoque.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => confirmDeleteProduct(product.id)}>Continuar</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </TableCell>
-                </TableRow>
-              )) : (
+              {products.length > 0 ? products.map((product) => {
+                const category = product.categoryId ? getCategoryById(product.categoryId) : null;
+                return (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      {product.image ? (
+                          <Image src={product.image} alt={product.name} width={64} height={64} className="rounded-md object-cover h-16 w-16" />
+                      ) : (
+                        <div className="h-16 w-16 bg-muted rounded-md" />
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell>
+                      {category ? <Badge variant="secondary">{category.name}</Badge> : '-'}
+                    </TableCell>
+                    <TableCell>{product.description}</TableCell>
+                    <TableCell>{formatCurrency(product.salePrice)}</TableCell>
+                    <TableCell>{formatCurrency(product.costPrice)}</TableCell>
+                    <TableCell>{product.quantity}</TableCell>
+                    <TableCell className="flex gap-2">
+                      <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Editar Produto</span>
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="icon">
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Remover Produto</span>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Essa ação não pode ser desfeita. Isso irá remover permanentemente o produto "{product?.name}" do seu estoque.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => confirmDeleteProduct(product.id)}>Continuar</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
+                  </TableRow>
+                )
+              }) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={8} className="h-24 text-center">
                     Nenhum produto cadastrado.
                   </TableCell>
                 </TableRow>

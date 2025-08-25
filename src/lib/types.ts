@@ -6,6 +6,7 @@ export type Product = {
   costPrice: number;
   quantity: number;
   image?: string;
+  categoryId?: string;
 };
 
 export type SaleItem = {
@@ -39,4 +40,9 @@ export type Purchase = {
   costPrice: number;
   total: number;
   date: string;
+};
+
+export type Category = {
+  id: string;
+  name: string;
 };

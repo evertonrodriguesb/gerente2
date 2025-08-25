@@ -16,13 +16,14 @@ import type { Product } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ComprasPage() {
-  const { products, addPurchase, removeProduct, updateProduct, purchases } = useStore();
+  const { products, addPurchase, removeProduct, updateProduct, purchases, categories, addCategory } = useStore();
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isNewProduct, setIsNewProduct] = useState(false);
-
+  const [isNewCategory, setIsNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   const [newPurchase, setNewPurchase] = useState({
     name: '',
@@ -30,6 +31,7 @@ export default function ComprasPage() {
     costPrice: 0,
     salePrice: 0,
     image: '',
+    categoryId: '',
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,12 +46,20 @@ export default function ComprasPage() {
   };
 
   const handleAddPurchase = () => {
+    let categoryId = newPurchase.categoryId;
+    if (isNewCategory && newCategoryName) {
+        const newCategory = addCategory(newCategoryName);
+        categoryId = newCategory.id;
+    }
+
     if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0 && newPurchase.salePrice > 0) {
-      addPurchase(newPurchase);
+      addPurchase({...newPurchase, categoryId});
       toast({ title: 'Sucesso!', description: 'Compra registrada e estoque atualizado.' });
-      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0, image: '' });
+      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0, image: '', categoryId: '' });
       setIsAddDialogOpen(false);
       setIsNewProduct(false);
+      setIsNewCategory(false);
+      setNewCategoryName("");
     } else {
       toast({ variant: 'destructive', title: 'Erro!', description: 'Preencha todos os campos corretamente.' });
     }
@@ -102,8 +112,25 @@ export default function ComprasPage() {
       setIsNewProduct(true);
       setNewPurchase({ ...newPurchase, name: '' });
     } else {
+      const selectedProduct = products.find(p => p.name === value);
       setIsNewProduct(false);
-      setNewPurchase({ ...newPurchase, name: value });
+      setNewPurchase({ 
+        ...newPurchase, 
+        name: value,
+        costPrice: selectedProduct?.costPrice || 0,
+        salePrice: selectedProduct?.salePrice || 0,
+        categoryId: selectedProduct?.categoryId || '',
+       });
+    }
+  }
+  
+  const handleCategorySelect = (value: string) => {
+    if (value === 'new') {
+      setIsNewCategory(true);
+      setNewPurchase({ ...newPurchase, categoryId: '' });
+    } else {
+      setIsNewCategory(false);
+      setNewPurchase({ ...newPurchase, categoryId: value });
     }
   }
 
@@ -112,7 +139,7 @@ export default function ComprasPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Registro de Compras</CardTitle>
-          <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if(!isOpen) setIsNewProduct(false); }}>
+          <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if(!isOpen) { setIsNewProduct(false); setIsNewCategory(false); setNewCategoryName(''); } }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
                 <PlusCircle className="h-3.5 w-3.5" />
@@ -150,6 +177,31 @@ export default function ComprasPage() {
                     <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
                   </div>
                 )}
+                
+                <div className="grid gap-2">
+                    <Label htmlFor="category-select">Categoria</Label>
+                    <Select onValueChange={handleCategorySelect} value={isNewCategory ? 'new' : newPurchase.categoryId}>
+                        <SelectTrigger id="category-select">
+                        <SelectValue placeholder="Selecione uma categoria ou crie uma nova" />
+                        </SelectTrigger>
+                        <SelectContent>
+                        <SelectItem value="new">Cadastrar nova categoria...</SelectItem>
+                        {categories.map(category => (
+                            <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {isNewCategory && (
+                    <div className="grid gap-2">
+                        <Label htmlFor="new-category-name">Nome da Nova Categoria</Label>
+                        <Input id="new-category-name" placeholder="Ex: Roupas" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
+                    </div>
+                )}
+
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="grid gap-2">
