@@ -116,16 +116,16 @@ export default function DashboardPage() {
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
-          title="Lucro Bruto Total" 
-          value={formatCurrency(totalGrossProfit)}
-          description="Soma do lucro de todas as vendas"
-          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatCard 
           title="Total em Descontos" 
           value={formatCurrency(totalDiscounts)}
           description="Soma de todos os descontos concedidos"
           icon={<BadgePercent className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatCard 
+          title="Lucro Bruto Total" 
+          value={formatCurrency(totalGrossProfit)}
+          description="Soma do lucro de todas as vendas"
+          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
         />
       </div>
     </div>
