@@ -190,7 +190,7 @@ export default function ComprasPage() {
                   Registrar Compra
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-[480px]">
                 <DialogHeader>
                   <DialogTitle>Registrar Nova Compra de Produto</DialogTitle>
                   <DialogDescription className="!mt-4">
