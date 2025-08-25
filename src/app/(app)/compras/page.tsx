@@ -64,8 +64,7 @@ export default function ComprasHistoricoPage() {
     const categoryMatch = selectedCategory === 'all' || getProductById(purchase.productId)?.categoryId === selectedCategory;
     const dateMatch = !selectedDate || (
       purchaseDate.getFullYear() === selectedDate.getFullYear() &&
-      purchaseDate.getMonth() === selectedDate.getMonth() &&
-      purchaseDate.getDate() === selectedDate.getDate()
+      purchaseDate.getMonth() === selectedDate.getMonth()
     );
     return categoryMatch && dateMatch;
   });
@@ -94,7 +93,7 @@ export default function ComprasHistoricoPage() {
                   <PopoverTrigger asChild>
                       <Button variant="outline" className="w-[280px] justify-start text-left font-normal">
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
+                          {selectedDate ? format(selectedDate, "MMMM 'de' yyyy", { locale: ptBR }) : <span>Selecione um mês</span>}
                       </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -104,6 +103,7 @@ export default function ComprasHistoricoPage() {
                           onSelect={setSelectedDate}
                           initialFocus
                           locale={ptBR}
+                          captionLayout="dropdown-buttons" fromYear={2020} toYear={new Date().getFullYear() + 1}
                       />
                   </PopoverContent>
               </Popover>
