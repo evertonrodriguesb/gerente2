@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -11,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Edit, Calendar as CalendarIcon } from 'lucide-react';
+import { Edit, Calendar as CalendarIcon, X } from 'lucide-react';
 import type { Purchase } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,8 +25,7 @@ export default function ComprasHistoricoPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedMonth, setSelectedMonth] = useState('all');
-  const [selectedYear, setSelectedYear] = useState('all');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -59,20 +59,15 @@ export default function ComprasHistoricoPage() {
     }
   };
 
-  const availableYears = Array.from(new Set(purchases.map(p => new Date(p.date).getFullYear()))).sort((a,b) => b-a);
-  const months = [
-    { value: '1', label: 'Janeiro' }, { value: '2', label: 'Fevereiro' }, { value: '3', label: 'Março' },
-    { value: '4', label: 'Abril' }, { value: '5', label: 'Maio' }, { value: '6', label: 'Junho' },
-    { value: '7', label: 'Julho' }, { value: '8', label: 'Agosto' }, { value: '9', label: 'Setembro' },
-    { value: '10', label: 'Outubro' }, { value: '11', label: 'Novembro' }, { value: '12', label: 'Dezembro' }
-  ];
-  
   const filteredPurchases = purchases.filter(purchase => {
     const purchaseDate = new Date(purchase.date);
     const categoryMatch = selectedCategory === 'all' || getProductById(purchase.productId)?.categoryId === selectedCategory;
-    const monthMatch = selectedMonth === 'all' || (purchaseDate.getMonth() + 1).toString() === selectedMonth;
-    const yearMatch = selectedYear === 'all' || purchaseDate.getFullYear().toString() === selectedYear;
-    return categoryMatch && monthMatch && yearMatch;
+    const dateMatch = !selectedDate || (
+      purchaseDate.getFullYear() === selectedDate.getFullYear() &&
+      purchaseDate.getMonth() === selectedDate.getMonth() &&
+      purchaseDate.getDate() === selectedDate.getDate()
+    );
+    return categoryMatch && dateMatch;
   });
 
   return (
@@ -95,24 +90,29 @@ export default function ComprasHistoricoPage() {
               </SelectContent>
             </Select>
             <div className="flex items-center gap-2">
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Mês" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os meses</SelectItem>
-                  {months.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Select value={selectedYear} onValueChange={setSelectedYear}>
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Ano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os anos</SelectItem>
-                  {availableYears.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Popover>
+                  <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-[280px] justify-start text-left font-normal">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
+                      </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                      <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={setSelectedDate}
+                          initialFocus
+                          locale={ptBR}
+                      />
+                  </PopoverContent>
+              </Popover>
+              {selectedDate && (
+                <Button variant="ghost" size="icon" onClick={() => setSelectedDate(undefined)}>
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Limpar data</span>
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
