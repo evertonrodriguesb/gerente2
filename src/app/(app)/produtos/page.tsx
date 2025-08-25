@@ -15,13 +15,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Edit, Trash2 } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ProdutosPage() {
-  const { products, updateProduct, removeProduct, getCategoryById } = useStore();
+  const { products, updateProduct, removeProduct, getCategoryById, categories } = useStore();
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
@@ -58,11 +59,30 @@ export default function ProdutosPage() {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
 
+  const filteredProducts = selectedCategory === 'all'
+    ? products
+    : products.filter(product => product.categoryId === selectedCategory);
+
   return (
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Produtos</CardTitle>
+          <div className="flex items-center gap-4">
+            <CardTitle>Produtos</CardTitle>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+                {categories.map(category => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -79,7 +99,7 @@ export default function ProdutosPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.length > 0 ? products.map((product) => {
+              {filteredProducts.length > 0 ? filteredProducts.map((product) => {
                 const category = product.categoryId ? getCategoryById(product.categoryId) : null;
                 return (
                   <TableRow key={product.id}>
@@ -129,7 +149,7 @@ export default function ProdutosPage() {
               }) : (
                 <TableRow>
                   <TableCell colSpan={8} className="h-24 text-center">
-                    Nenhum produto cadastrado.
+                    Nenhum produto encontrado para esta categoria.
                   </TableCell>
                 </TableRow>
               )}

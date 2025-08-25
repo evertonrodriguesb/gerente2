@@ -21,11 +21,12 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function VendasPage() {
-  const { sales, products, addSale, updateSale, removeSale } = useStore();
+  const { sales, products, addSale, updateSale, removeSale, categories, getProductById } = useStore();
   const { toast } = useToast();
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const [cart, setCart] = useState<SaleItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState('');
@@ -150,11 +151,35 @@ export default function VendasPage() {
     return product?.image;
   }
 
+  const filteredSales = selectedCategory === 'all'
+    ? sales
+    : sales.filter(sale => 
+        sale.items.some(item => {
+          const product = getProductById(item.productId);
+          return product?.categoryId === selectedCategory;
+        })
+      );
+
   return (
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Histórico de Vendas</CardTitle>
+          <div className="flex items-center gap-4">
+            <CardTitle>Histórico de Vendas</CardTitle>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar por categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+                {categories.map(category => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Dialog open={isRegisterDialogOpen} onOpenChange={setIsRegisterDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
@@ -274,7 +299,7 @@ export default function VendasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sales.length > 0 ? sales.map((sale) => {
+              {filteredSales.length > 0 ? filteredSales.map((sale) => {
                 const firstItemImage = sale.items.length > 0 ? getProductImage(sale.items[0].productId) : null;
                 return (
                 <TableRow key={sale.id}>
@@ -320,7 +345,7 @@ export default function VendasPage() {
               )}) : (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center">
-                    Nenhuma venda registrada.
+                    Nenhuma venda registrada para esta categoria.
                   </TableCell>
                 </TableRow>
               )}
