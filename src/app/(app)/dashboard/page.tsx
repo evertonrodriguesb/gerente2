@@ -1,10 +1,13 @@
+
 'use client';
 
+import { useState } from 'react';
 import { useStore } from '@/hooks/use-store';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart, Archive, Trash2, BadgePercent } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { ReactElement, FC } from 'react';
 
 interface StatCardProps {
@@ -29,16 +32,47 @@ const StatCard: FC<StatCardProps> = ({ title, value, icon, description }) => (
 
 export default function DashboardPage() {
   const { products, sales, purchases, clearData } = useStore();
+  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedYear, setSelectedYear] = useState('all');
+
+  const availableYears = Array.from(new Set([
+    ...purchases.map(p => new Date(p.date).getFullYear().toString()),
+    ...sales.map(s => new Date(s.date).getFullYear().toString())
+  ])).sort((a, b) => parseInt(b) - parseInt(a));
+
+  const availableMonths = [
+    { value: '1', label: 'Janeiro' }, { value: '2', label: 'Fevereiro' },
+    { value: '3', label: 'Março' }, { value: '4', label: 'Abril' },
+    { value: '5', label: 'Maio' }, { value: '6', label: 'Junho' },
+    { value: '7', label: 'Julho' }, { value: '8', label: 'Agosto' },
+    { value: '9', label: 'Setembro' }, { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' }, { value: '12', label: 'Dezembro' }
+  ];
+
+  const filteredSales = sales.filter(sale => {
+    const saleDate = new Date(sale.date);
+    const monthMatch = selectedMonth === 'all' || (saleDate.getMonth() + 1).toString() === selectedMonth;
+    const yearMatch = selectedYear === 'all' || saleDate.getFullYear().toString() === selectedYear;
+    return monthMatch && yearMatch;
+  });
+
+  const filteredPurchases = purchases.filter(purchase => {
+    const purchaseDate = new Date(purchase.date);
+    const monthMatch = selectedMonth === 'all' || (purchaseDate.getMonth() + 1).toString() === selectedMonth;
+    const yearMatch = selectedYear === 'all' || purchaseDate.getFullYear().toString() === selectedYear;
+    return monthMatch && yearMatch;
+  });
 
   const totalProducts = products.length;
   const totalStock = products.reduce((sum, product) => sum + product.quantity, 0);
   const totalStockValue = products.reduce((sum, product) => sum + (product.costPrice * product.quantity), 0);
-  const totalSalesValue = sales.reduce((sum, sale) => sum + sale.total, 0);
-  const totalSalesCount = sales.length;
-  const totalGrossProfit = sales.reduce((sum, sale) => sum + sale.grossProfit, 0);
-  const totalItemsSold = sales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
-  const totalPurchasesValue = purchases.reduce((sum, purchase) => sum + purchase.total, 0);
-  const totalDiscounts = sales.reduce((sum, sale) => sum + (sale.discount || 0), 0);
+  
+  const totalSalesValue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+  const totalSalesCount = filteredSales.length;
+  const totalGrossProfit = filteredSales.reduce((sum, sale) => sum + sale.grossProfit, 0);
+  const totalItemsSold = filteredSales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+  const totalPurchasesValue = filteredPurchases.reduce((sum, purchase) => sum + purchase.total, 0);
+  const totalDiscounts = filteredSales.reduce((sum, sale) => sum + (sale.discount || 0), 0);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -50,7 +84,35 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por mês" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os meses</SelectItem>
+              {availableMonths.map(month => (
+                <SelectItem key={month.value} value={month.value}>
+                  {month.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Filtrar por ano" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os anos</SelectItem>
+              {availableYears.map(year => (
+                <SelectItem key={year} value={year}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" size="sm">
@@ -94,37 +156,37 @@ export default function DashboardPage() {
         <StatCard 
           title="Valor Total de Compras" 
           value={formatCurrency(totalPurchasesValue)}
-          description="Soma de todos os produtos comprados"
+          description="Soma de produtos comprados no período"
           icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
         />
          <StatCard 
           title="Vendas Realizadas" 
           value={totalSalesCount}
-          description="Número total de transações"
+          description="Transações no período"
           icon={<ShoppingBag className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Produtos Vendidos" 
           value={totalItemsSold}
-          description="Quantidade total de itens vendidos"
+          description="Itens vendidos no período"
           icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Receita Total" 
           value={formatCurrency(totalSalesValue)}
-          description="Soma de todas as vendas"
+          description="Soma das vendas no período"
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Total em Descontos" 
           value={formatCurrency(totalDiscounts)}
-          description="Soma de todos os descontos concedidos"
+          description="Descontos concedidos no período"
           icon={<BadgePercent className="h-4 w-4 text-muted-foreground" />}
         />
         <StatCard 
           title="Lucro Bruto Total" 
           value={formatCurrency(totalGrossProfit)}
-          description="Soma do lucro de todas as vendas"
+          description="Lucro das vendas no período"
           icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
         />
       </div>
