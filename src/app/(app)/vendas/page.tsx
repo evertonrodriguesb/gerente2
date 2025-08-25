@@ -162,95 +162,101 @@ export default function VendasPage() {
                 Registrar Venda
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-xl">
               <DialogHeader>
                 <DialogTitle>Registrar Nova Venda</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
-                {/* Lado Esquerdo: Adicionar Itens */}
-                <div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2">
-                      <Label>Produto</Label>
-                      <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um produto" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.filter(p => p.quantity > 0).map(p => (
-                            <SelectItem key={p.id} value={p.id}>
-                              <div className="flex items-center gap-2">
-                                {p.image ? (
-                                    <Image src={p.image} alt={p.name} width={24} height={24} className="rounded-sm object-cover h-6 w-6" />
-                                ) : (
-                                  <div className="h-6 w-6 bg-muted rounded-sm" />
-                                )}
-                                {p.name} ({p.quantity} disp.)
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Quantidade</Label>
-                      <Input type="number" value={quantity} onChange={e => setQuantity(Number(e.target.value))} min={1} />
-                    </div>
+              <div className="flex flex-col gap-4 py-4">
+                <div className="flex items-start gap-4">
+                  <div className="grid gap-2 flex-grow">
+                    <Label>Produto</Label>
+                    <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um produto" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.filter(p => p.quantity > 0).map(p => (
+                          <SelectItem key={p.id} value={p.id}>
+                            <div className="flex items-center gap-2">
+                              {p.image ? (
+                                  <Image src={p.image} alt={p.name} width={24} height={24} className="rounded-sm object-cover h-6 w-6" />
+                              ) : (
+                                <div className="h-6 w-6 bg-muted rounded-sm" />
+                              )}
+                              {p.name} ({p.quantity} disp.)
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <Button onClick={handleAddToCart} className="w-full mt-4"><PlusCircle className="mr-2 h-4 w-4" />Adicionar Item</Button>
+                  <div className="grid gap-2 w-24">
+                    <Label>Quantidade</Label>
+                    <Input type="number" value={quantity} onChange={e => setQuantity(Number(e.target.value))} min={1} />
+                  </div>
                 </div>
-
-                {/* Lado Direito: Carrinho e Total */}
-                <div>
-                  <h3 className="font-semibold mb-2">Itens da Venda:</h3>
+                
+                <Button onClick={handleAddToCart} className="w-full"><PlusCircle className="mr-2 h-4 w-4" />Adicionar Item</Button>
+                
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm">Itens da Venda:</h3>
                   <div className="max-h-48 overflow-y-auto border rounded-md">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Produto</TableHead><TableHead>Qtd.</TableHead><TableHead>Preço</TableHead><TableHead>Subtotal</TableHead><TableHead></TableHead>
+                          <TableHead>Produto</TableHead>
+                          <TableHead>Qtd.</TableHead>
+                          <TableHead>Preço</TableHead>
+                          <TableHead>Subtotal</TableHead>
+                          <TableHead className="w-[40px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {cart.map(item => (
+                        {cart.length > 0 ? cart.map(item => (
                           <TableRow key={item.productId}>
-                            <TableCell>{item.productName}</TableCell>
+                            <TableCell className="font-medium">{item.productName}</TableCell>
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>{formatCurrency(item.price)}</TableCell>
                             <TableCell>{formatCurrency(item.price * item.quantity)}</TableCell>
-                            <TableCell><Button variant="ghost" size="icon" onClick={() => handleRemoveFromCart(item.productId)}><Trash2 className="h-4 w-4 text-destructive"/></Button></TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="icon" onClick={() => handleRemoveFromCart(item.productId)}>
+                                <Trash2 className="h-4 w-4 text-destructive"/>
+                              </Button>
+                            </TableCell>
                           </TableRow>
-                        ))}
+                        )) : (
+                           <TableRow>
+                              <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-4">
+                                Nenhum item na venda.
+                              </TableCell>
+                            </TableRow>
+                        )}
                       </TableBody>
                     </Table>
-                    {cart.length === 0 && <p className="text-center text-sm text-muted-foreground p-4">Nenhum item na venda.</p>}
                   </div>
-                  <div className="mt-4 space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Subtotal:</span>
-                      <span className="font-medium">{formatCurrency(cartSubtotal)}</span>
+                </div>
+
+                <div className="flex justify-between items-center mt-4">
+                    <div className="flex items-center gap-2">
+                         <Label htmlFor="discount" className="text-muted-foreground text-sm font-normal">
+                            Desconto (R$):
+                          </Label>
+                          <Input 
+                            id="discount"
+                            type="number" 
+                            value={discount} 
+                            onChange={e => setDiscount(Math.max(0, Number(e.target.value)))} 
+                            className="w-24 h-9"
+                          />
                     </div>
-                    <div className="flex justify-between items-center">
-                      <Label htmlFor="discount" className="flex items-center gap-2 text-muted-foreground">
-                        <MinusCircle className="h-4 w-4" />
-                        Desconto (R$):
-                      </Label>
-                      <Input 
-                        id="discount"
-                        type="number" 
-                        value={discount} 
-                        onChange={e => setDiscount(Math.max(0, Number(e.target.value)))} 
-                        className="w-24 h-8"
-                      />
-                    </div>
-                    <div className="flex justify-between items-center text-lg font-bold">
-                      <span>Total:</span>
-                      <span>{formatCurrency(cartTotal)}</span>
-                    </div>
+                  <div className="text-right">
+                    <span className="text-muted-foreground">Total: </span>
+                    <span className="text-xl font-bold">{formatCurrency(cartTotal)}</span>
                   </div>
                 </div>
               </div>
               
-              <Button onClick={handleFinalizeSale} disabled={cart.length === 0} className="w-full mt-4"><ShoppingCart className="mr-2 h-4 w-4" />Finalizar Venda</Button>
+              <Button onClick={handleFinalizeSale} disabled={cart.length === 0} className="w-full mt-2"><ShoppingCart className="mr-2 h-4 w-4" />Finalizar Venda</Button>
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -368,3 +374,5 @@ export default function VendasPage() {
     </>
   );
 }
+
+    
