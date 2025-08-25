@@ -4,7 +4,7 @@ import { useStore } from '@/hooks/use-store';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart, Archive, Trash2 } from 'lucide-react';
+import { Package, Boxes, DollarSign, ShoppingBag, TrendingUp, ShoppingCart, Archive, Trash2, BadgePercent } from 'lucide-react';
 import type { ReactElement, FC } from 'react';
 
 interface StatCardProps {
@@ -38,6 +38,7 @@ export default function DashboardPage() {
   const totalGrossProfit = sales.reduce((sum, sale) => sum + sale.grossProfit, 0);
   const totalItemsSold = sales.reduce((sum, sale) => sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
   const totalPurchasesValue = purchases.reduce((sum, purchase) => sum + purchase.total, 0);
+  const totalDiscounts = sales.reduce((sum, sale) => sum + (sale.discount || 0), 0);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -119,6 +120,12 @@ export default function DashboardPage() {
           value={formatCurrency(totalGrossProfit)}
           description="Soma do lucro de todas as vendas"
           icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+        />
+        <StatCard 
+          title="Total em Descontos" 
+          value={formatCurrency(totalDiscounts)}
+          description="Soma de todos os descontos concedidos"
+          icon={<BadgePercent className="h-4 w-4 text-muted-foreground" />}
         />
       </div>
     </div>
