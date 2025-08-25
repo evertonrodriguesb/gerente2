@@ -10,7 +10,7 @@ type StoreContextType = {
   purchases: Purchase[];
   categories: Category[];
   addProduct: (product: Omit<Product, 'id'>) => void;
-  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number, image?: string, categoryId?: string }) => void;
+  addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number, image?: string, categoryId?: string, date: string }) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
@@ -79,7 +79,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setProducts((prev) => [...prev, { ...product, id: Date.now().toString() }]);
   };
   
-  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number; image?: string; categoryId?: string }) => {
+  const addPurchase = (purchase: { name: string; quantity: number; costPrice: number; salePrice: number; image?: string; categoryId?: string; date: string }) => {
     let productId: string;
     let productName: string;
 
@@ -99,7 +99,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         quantity: purchase.quantity,
         costPrice: purchase.costPrice,
         total: purchase.quantity * purchase.costPrice,
-        date: new Date().toISOString(),
+        date: purchase.date,
     };
     setPurchases((prev) => [newPurchase, ...prev]);
 

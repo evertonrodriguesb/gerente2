@@ -11,9 +11,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, Calendar as CalendarIcon } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function ComprasPage() {
   const { products, addPurchase, removeProduct, updateProduct, purchases, categories, addCategory } = useStore();
@@ -33,6 +37,7 @@ export default function ComprasPage() {
     salePrice: 0,
     image: '',
     categoryId: '',
+    date: new Date(),
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,9 +59,9 @@ export default function ComprasPage() {
     }
 
     if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0 && newPurchase.salePrice > 0) {
-      addPurchase({...newPurchase, categoryId});
+      addPurchase({...newPurchase, categoryId, date: newPurchase.date.toISOString() });
       toast({ title: 'Sucesso!', description: 'Compra registrada e estoque atualizado.' });
-      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0, image: '', categoryId: '' });
+      setNewPurchase({ name: '', quantity: 0, costPrice: 0, salePrice: 0, image: '', categoryId: '', date: new Date() });
       setIsAddDialogOpen(false);
       setIsNewProduct(false);
       setIsNewCategory(false);
@@ -107,6 +112,17 @@ export default function ComprasPage() {
       .filter(p => p.productId === productId)
       .reduce((total, purchase) => total + purchase.quantity, 0);
   };
+
+  const getLastPurchaseDate = (productId: string) => {
+    const productPurchases = purchases
+      .filter(p => p.productId === productId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    if (productPurchases.length > 0) {
+        return new Date(productPurchases[0].date).toLocaleDateString('pt-BR');
+    }
+    return '-';
+  }
 
   const handleProductSelect = (value: string) => {
     if (value === 'new') {
@@ -243,6 +259,26 @@ export default function ComprasPage() {
                     <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="pt-2" />
                   </div>
                 </div>
+                <div className="grid gap-2">
+                    <Label>Data da Compra</Label>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" className="justify-start text-left font-normal">
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {format(newPurchase.date, "PPP", { locale: ptBR })}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                                mode="single"
+                                selected={newPurchase.date}
+                                onSelect={(date) => date && setNewPurchase({ ...newPurchase, date })}
+                                initialFocus
+                                locale={ptBR}
+                            />
+                        </PopoverContent>
+                    </Popover>
+                </div>
               </div>
               <Button onClick={handleAddPurchase} className="w-full">Salvar Compra</Button>
             </DialogContent>
@@ -257,6 +293,7 @@ export default function ComprasPage() {
                 <TableHead>Estoque Atual</TableHead>
                 <TableHead>Total Comprado</TableHead>
                 <TableHead>Preço de Compra</TableHead>
+                <TableHead>Última Compra</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -274,6 +311,7 @@ export default function ComprasPage() {
                   <TableCell>{product.quantity}</TableCell>
                   <TableCell>{getTotalPurchased(product.id)}</TableCell>
                   <TableCell>{formatCurrency(product.costPrice)}</TableCell>
+                  <TableCell>{getLastPurchaseDate(product.id)}</TableCell>
                   <TableCell className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => handleEditProduct(product)}>
                       <Edit className="h-4 w-4" />
@@ -303,7 +341,7 @@ export default function ComprasPage() {
                 </TableRow>
               )) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     Nenhum produto cadastrado para esta categoria.
                   </TableCell>
                 </TableRow>
