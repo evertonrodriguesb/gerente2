@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useStore } from '@/hooks/use-store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, Trash2, Edit, Calendar as CalendarIcon } from 'lucide-react';
+import { PlusCircle, Trash2, Edit, Calendar as CalendarIcon, History } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -175,114 +176,122 @@ export default function ComprasPage() {
               </SelectContent>
             </Select>
           </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if(!isOpen) { setIsNewProduct(false); setIsNewCategory(false); setNewCategoryName(''); } }}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
-                <PlusCircle className="h-3.5 w-3.5" />
-                Registrar Compra
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Registrar Nova Compra de Produto</DialogTitle>
-                <DialogDescription className="!mt-4">
-                  Caso inserir incorretamente ou esquecer de alguma quantidade, registre outra compra para complementar.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="product-select">Produto</Label>
-                  <Select onValueChange={handleProductSelect} value={isNewProduct ? 'new' : newPurchase.name}>
-                    <SelectTrigger id="product-select">
-                      <SelectValue placeholder="Selecione um produto ou crie um novo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">Cadastrar novo produto...</SelectItem>
-                      {products.map(product => (
-                        <SelectItem key={product.id} value={product.name}>
-                          {product.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {isNewProduct && (
+          <div className="flex gap-2">
+             <Link href="/compras">
+                <Button size="sm" variant="outline" className="gap-1">
+                    <History className="h-3.5 w-3.5" />
+                    Histórico
+                </Button>
+            </Link>
+            <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if(!isOpen) { setIsNewProduct(false); setIsNewCategory(false); setNewCategoryName(''); } }}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  Registrar Compra
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Registrar Nova Compra de Produto</DialogTitle>
+                  <DialogDescription className="!mt-4">
+                    Caso inserir incorretamente ou esquecer de alguma quantidade, registre outra compra para complementar.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">Nome do Novo Produto</Label>
-                    <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
-                  </div>
-                )}
-                
-                <div className="grid gap-2">
-                    <Label htmlFor="category-select">Categoria</Label>
-                    <Select onValueChange={handleCategorySelect} value={isNewCategory ? 'new' : newPurchase.categoryId}>
-                        <SelectTrigger id="category-select">
-                        <SelectValue placeholder="Selecione uma categoria ou crie uma nova" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectItem value="new">Cadastrar nova categoria...</SelectItem>
-                        {categories.map(category => (
-                            <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                            </SelectItem>
+                    <Label htmlFor="product-select">Produto</Label>
+                    <Select onValueChange={handleProductSelect} value={isNewProduct ? 'new' : newPurchase.name}>
+                      <SelectTrigger id="product-select">
+                        <SelectValue placeholder="Selecione um produto ou crie um novo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">Cadastrar novo produto...</SelectItem>
+                        {products.map(product => (
+                          <SelectItem key={product.id} value={product.name}>
+                            {product.name}
+                          </SelectItem>
                         ))}
-                        </SelectContent>
+                      </SelectContent>
                     </Select>
-                </div>
+                  </div>
 
-                {isNewCategory && (
+                  {isNewProduct && (
                     <div className="grid gap-2">
-                        <Label htmlFor="new-category-name">Nome da Nova Categoria</Label>
-                        <Input id="new-category-name" placeholder="Ex: Roupas" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
+                      <Label htmlFor="name">Nome do Novo Produto</Label>
+                      <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
                     </div>
-                )}
+                  )}
+                  
+                  <div className="grid gap-2">
+                      <Label htmlFor="category-select">Categoria</Label>
+                      <Select onValueChange={handleCategorySelect} value={isNewCategory ? 'new' : newPurchase.categoryId}>
+                          <SelectTrigger id="category-select">
+                          <SelectValue placeholder="Selecione uma categoria ou crie uma nova" />
+                          </SelectTrigger>
+                          <SelectContent>
+                          <SelectItem value="new">Cadastrar nova categoria...</SelectItem>
+                          {categories.map(category => (
+                              <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                              </SelectItem>
+                          ))}
+                          </SelectContent>
+                      </Select>
+                  </div>
+
+                  {isNewCategory && (
+                      <div className="grid gap-2">
+                          <Label htmlFor="new-category-name">Nome da Nova Categoria</Label>
+                          <Input id="new-category-name" placeholder="Ex: Roupas" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
+                      </div>
+                  )}
 
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="quantity">Quantidade Comprada</Label>
-                    <Input id="quantity" type="number" value={newPurchase.quantity} onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) || 0 })} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="quantity">Quantidade Comprada</Label>
+                      <Input id="quantity" type="number" value={newPurchase.quantity} onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) || 0 })} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="costPrice">Custo por Unidade (R$)</Label>
+                      <Input id="costPrice" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="salePrice">Preço de Venda (R$)</Label>
+                      <Input id="salePrice" type="number" value={newPurchase.salePrice} onChange={(e) => setNewPurchase({ ...newPurchase, salePrice: parseFloat(e.target.value) || 0 })} />
+                    </div>
+                     <div className="grid gap-2">
+                      <Label htmlFor="image">Imagem do Produto</Label>
+                      <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="pt-2" />
+                    </div>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="costPrice">Custo por Unidade (R$)</Label>
-                    <Input id="costPrice" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
+                      <Label>Data da Compra</Label>
+                      <Popover>
+                          <PopoverTrigger asChild>
+                              <Button variant="outline" className="justify-start text-left font-normal">
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {format(newPurchase.date, "PPP", { locale: ptBR })}
+                              </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                              <Calendar
+                                  mode="single"
+                                  selected={newPurchase.date}
+                                  onSelect={(date) => date && setNewPurchase({ ...newPurchase, date })}
+                                  initialFocus
+                                  locale={ptBR}
+                              />
+                          </PopoverContent>
+                      </Popover>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="salePrice">Preço de Venda (R$)</Label>
-                    <Input id="salePrice" type="number" value={newPurchase.salePrice} onChange={(e) => setNewPurchase({ ...newPurchase, salePrice: parseFloat(e.target.value) || 0 })} />
-                  </div>
-                   <div className="grid gap-2">
-                    <Label htmlFor="image">Imagem do Produto</Label>
-                    <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="pt-2" />
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                    <Label>Data da Compra</Label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="justify-start text-left font-normal">
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {format(newPurchase.date, "PPP", { locale: ptBR })}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
-                                mode="single"
-                                selected={newPurchase.date}
-                                onSelect={(date) => date && setNewPurchase({ ...newPurchase, date })}
-                                initialFocus
-                                locale={ptBR}
-                            />
-                        </PopoverContent>
-                    </Popover>
-                </div>
-              </div>
-              <Button onClick={handleAddPurchase} className="w-full">Salvar Compra</Button>
-            </DialogContent>
-          </Dialog>
+                <Button onClick={handleAddPurchase} className="w-full">Salvar Compra</Button>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>

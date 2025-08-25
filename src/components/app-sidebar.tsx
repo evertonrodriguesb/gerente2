@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, ShoppingCart, BrainCircuit, ClipboardPlus } from 'lucide-react';
+import { Home, Package, ShoppingCart, BrainCircuit, ClipboardPlus, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/produtos', label: 'Produtos', icon: Package },
   { href: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { href: '/fornecedores', label: 'Compras', icon: ClipboardPlus },
+  { href: '/compras', label: 'Histórico de Compras', icon: History },
   { href: '/reposicao', label: 'Reposição IA', icon: BrainCircuit },
 ];
 

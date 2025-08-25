@@ -11,6 +11,7 @@ type StoreContextType = {
   categories: Category[];
   addProduct: (product: Omit<Product, 'id'>) => void;
   addPurchase: (purchase: { name: string; quantity: number; costPrice: number; salePrice: number, image?: string, categoryId?: string, date: string }) => void;
+  updatePurchase: (updatedPurchase: Purchase) => void;
   addSale: (sale: Omit<Sale, 'id' | 'date' | 'total' | 'grossProfit'>) => void;
   updateProduct: (updatedProduct: Product) => void;
   removeProduct: (productId: string) => void;
@@ -101,7 +102,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         total: purchase.quantity * purchase.costPrice,
         date: purchase.date,
     };
-    setPurchases((prev) => [newPurchase, ...prev]);
+    setPurchases((prev) => [newPurchase, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 
     setProducts((prev) => {
       if (existingProduct) {
@@ -126,6 +127,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const updatePurchase = (updatedPurchase: Purchase) => {
+    setPurchases(prev =>
+      prev.map(purchase => (purchase.id === updatedPurchase.id ? updatedPurchase : purchase))
+         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    );
+  };
+
   const updateProduct = (updatedProduct: Product) => {
     const originalProduct = products.find(p => p.id === updatedProduct.id);
     if (!originalProduct) return;
@@ -133,21 +141,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const costPriceDifference = updatedProduct.costPrice - originalProduct.costPrice;
     
     if (costPriceDifference !== 0) {
-        const totalQuantityPurchased = purchases
-            .filter(p => p.productId === updatedProduct.id)
-            .reduce((sum, purchase) => sum + purchase.quantity, 0);
-
-        if (totalQuantityPurchased > 0) {
-            setPurchases(prevPurchases => 
-                prevPurchases.map(p => {
-                    if (p.productId === updatedProduct.id) {
-                        const totalAdjustment = costPriceDifference * p.quantity;
-                        return { ...p, costPrice: updatedProduct.costPrice, total: p.total + totalAdjustment };
-                    }
-                    return p;
-                })
-            );
-        }
+        setPurchases(prevPurchases => 
+            prevPurchases.map(p => {
+                if (p.productId === updatedProduct.id) {
+                    const newCost = p.costPrice + costPriceDifference;
+                    return { ...p, costPrice: newCost, total: newCost * p.quantity };
+                }
+                return p;
+            })
+        );
     }
 
     setProducts(prevProducts =>
@@ -244,7 +246,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <StoreContext.Provider value={{ products, sales, suppliers, purchases, categories, addCategory, getCategoryById, addProduct, addPurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier, clearData }}>
+    <StoreContext.Provider value={{ products, sales, suppliers, purchases, categories, addCategory, getCategoryById, addProduct, addPurchase, updatePurchase, addSale, updateProduct, removeProduct, updateSale, removeSale, getProductById, addSupplier, updateSupplier, removeSupplier, clearData }}>
       {children}
     </StoreContext.Provider>
   );
