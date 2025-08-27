@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, Package, ShoppingCart, BrainCircuit, ClipboardPlus, History } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { Home, Package, ShoppingCart, BrainCircuit, ClipboardPlus, History, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
@@ -16,6 +17,12 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    // TODO: Implementar lógica de logout real
+    router.push('/login');
+  };
 
   return (
     <div className="flex h-full max-h-screen flex-col gap-2">
@@ -25,7 +32,7 @@ export function AppSidebar() {
           <span className="">Gestor Ágil</span>
         </Link>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 overflow-auto py-2">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
           {navItems.map((item) => (
             <Link
@@ -41,6 +48,12 @@ export function AppSidebar() {
             </Link>
           ))}
         </nav>
+      </div>
+      <div className="mt-auto border-t p-4">
+        <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair
+        </Button>
       </div>
     </div>
   );
