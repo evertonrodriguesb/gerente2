@@ -193,12 +193,12 @@ export default function ComprasPage() {
               <DialogContent className="sm:max-w-[480px]">
                 <DialogHeader>
                   <DialogTitle>Registrar Nova Compra de Produto</DialogTitle>
-                  <DialogDescription className="!mt-4">
+                  <DialogDescription className="!mt-2">
                     Caso inserir incorretamente ou esquecer de alguma quantidade, registre outra compra para complementar.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
+                <div className="grid gap-1 py-2">
+                  <div className="grid gap-1">
                     <Label htmlFor="product-select">Produto</Label>
                     <Select onValueChange={handleProductSelect} value={isNewProduct ? 'new' : newPurchase.name}>
                       <SelectTrigger id="product-select">
@@ -216,13 +216,13 @@ export default function ComprasPage() {
                   </div>
 
                   {isNewProduct && (
-                    <div className="grid gap-2">
+                    <div className="grid gap-1">
                       <Label htmlFor="name">Nome do Novo Produto</Label>
                       <Input id="name" placeholder="Ex: Camiseta Básica" value={newPurchase.name} onChange={(e) => setNewPurchase({ ...newPurchase, name: e.target.value })} />
                     </div>
                   )}
                   
-                  <div className="grid gap-2">
+                  <div className="grid gap-1">
                       <Label htmlFor="category-select">Categoria</Label>
                       <Select onValueChange={handleCategorySelect} value={isNewCategory ? 'new' : newPurchase.categoryId}>
                           <SelectTrigger id="category-select">
@@ -240,34 +240,34 @@ export default function ComprasPage() {
                   </div>
 
                   {isNewCategory && (
-                      <div className="grid gap-2">
+                      <div className="grid gap-1">
                           <Label htmlFor="new-category-name">Nome da Nova Categoria</Label>
                           <Input id="new-category-name" placeholder="Ex: Roupas" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
                       </div>
                   )}
 
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="grid gap-1">
                       <Label htmlFor="quantity">Quantidade Comprada</Label>
                       <Input id="quantity" type="number" value={newPurchase.quantity} onChange={(e) => setNewPurchase({ ...newPurchase, quantity: parseInt(e.target.value) || 0 })} />
                     </div>
-                    <div className="grid gap-2">
+                    <div className="grid gap-1">
                       <Label htmlFor="costPrice">Custo por Unidade (R$)</Label>
                       <Input id="costPrice" type="number" value={newPurchase.costPrice} onChange={(e) => setNewPurchase({ ...newPurchase, costPrice: parseFloat(e.target.value) || 0 })} />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="grid gap-1">
                       <Label htmlFor="salePrice">Preço de Venda (R$)</Label>
                       <Input id="salePrice" type="number" value={newPurchase.salePrice} onChange={(e) => setNewPurchase({ ...newPurchase, salePrice: parseFloat(e.target.value) || 0 })} />
                     </div>
-                     <div className="grid gap-2">
+                     <div className="grid gap-1">
                       <Label htmlFor="image">Imagem do Produto</Label>
-                      <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="pt-2" />
+                      <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="pt-1" />
                     </div>
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid gap-1">
                       <Label>Data da Compra</Label>
                       <Popover>
                           <PopoverTrigger asChild>
