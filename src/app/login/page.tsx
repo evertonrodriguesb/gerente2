@@ -8,29 +8,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { auth } from '@/lib/firebase'; // Importando o auth do firebase
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Importando a função de login
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // Estado para controlar o loading
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Credenciais de administrador
-    const adminEmail = 'admin@gestoragil.com';
-    const adminPassword = 'admin123';
+    setIsLoading(true);
 
-    if (email === adminEmail && password === adminPassword) {
-      // TODO: Implementar um sistema de sessão real
+    try {
+      // Tenta fazer o login com o e-mail e senha fornecidos
+      await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard');
-    } else {
+    } catch (error: any) {
+      // Exibe um erro caso o login falhe
       toast({
         variant: 'destructive',
         title: 'Erro de Login',
         description: 'E-mail ou senha incorretos. Tente novamente.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,6 +59,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="grid gap-2">
@@ -66,11 +71,12 @@ export default function LoginPage() {
                   type="password" 
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)} 
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Entrar
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Entrando...' : 'Entrar'}
               </Button>
             </div>
           </form>

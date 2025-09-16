@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import { AuthProvider } from '@/contexts/auth-context'; // Importando o AuthProvider
 
 export const metadata: Metadata = {
   title: 'Gestor Ágil',
@@ -24,7 +25,9 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased')}>
-        {children}
+        <AuthProvider> {/* Envolvendo a aplicação com o AuthProvider */}
+          {children}
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
