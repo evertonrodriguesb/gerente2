@@ -54,9 +54,16 @@ export default function ComprasPage() {
 
   const handleAddPurchase = () => {
     let categoryId = newPurchase.categoryId;
-    if (isNewCategory && newCategoryName) {
+    if (isNewCategory) {
+        if (!newCategoryName.trim()) {
+            toast({ variant: 'destructive', title: 'Erro!', description: 'Por favor, insira o nome da nova categoria.' });
+            return;
+        }
         const newCategory = addCategory(newCategoryName);
         categoryId = newCategory.id;
+    } else if (!categoryId) {
+        toast({ variant: 'destructive', title: 'Erro!', description: 'Por favor, selecione ou crie uma categoria.' });
+        return;
     }
 
     if (newPurchase.name && newPurchase.costPrice > 0 && newPurchase.quantity > 0 && newPurchase.salePrice > 0) {

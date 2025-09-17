@@ -30,7 +30,7 @@ export default function ProdutosPage() {
   }
 
   const handleUpdateProduct = () => {
-    if (editingProduct && editingProduct.name && editingProduct.salePrice > 0 && editingProduct.quantity >= 0) {
+    if (editingProduct && editingProduct.name && editingProduct.salePrice > 0) {
       updateProduct(editingProduct);
       toast({ title: 'Sucesso!', description: 'Produto atualizado com sucesso.' });
       setEditingProduct(null);
@@ -182,15 +182,9 @@ export default function ProdutosPage() {
                     <Input id="edit-cost" type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: parseFloat(e.target.value) || 0 })} />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="edit-quantity">Quantidade</Label>
-                        <Input id="edit-quantity" type="number" value={editingProduct.quantity} onChange={(e) => setEditingProduct({ ...editingProduct, quantity: parseInt(e.target.value) || 0 })} />
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="edit-image">Imagem</Label>
-                        <Input id="edit-image" type="file" accept="image/*" onChange={handleEditImageChange} className="pt-2" />
-                    </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-image">Imagem</Label>
+                  <Input id="edit-image" type="file" accept="image/*" onChange={handleEditImageChange} className="pt-2" />
                 </div>
               </div>
             )}
