@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { PlusCircle, ShoppingCart, Trash2, Edit, Calendar as CalendarIcon, MinusCircle } from 'lucide-react';
+import { PlusCircle, ShoppingCart, Trash2, Edit, Calendar as CalendarIcon } from 'lucide-react';
 import type { Sale, SaleItem } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -292,6 +292,7 @@ export default function VendasPage() {
                 <TableHead>Imagem</TableHead>
                 <TableHead>Data da Venda</TableHead>
                 <TableHead>Itens</TableHead>
+                <TableHead>Quantidade</TableHead>
                 <TableHead>Desconto</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Lucro Bruto</TableHead>
@@ -301,6 +302,7 @@ export default function VendasPage() {
             <TableBody>
               {filteredSales.length > 0 ? filteredSales.map((sale) => {
                 const firstItemImage = sale.items.length > 0 ? getProductImage(sale.items[0].productId) : null;
+                const totalItems = sale.items.reduce((total, item) => total + item.quantity, 0);
                 return (
                 <TableRow key={sale.id}>
                    <TableCell>
@@ -312,6 +314,7 @@ export default function VendasPage() {
                   </TableCell>
                   <TableCell>{formatDate(sale.date)}</TableCell>
                   <TableCell>{sale.items.map(i => i.productName).join(', ')}</TableCell>
+                  <TableCell>{totalItems}</TableCell>
                   <TableCell>{formatCurrency(sale.discount || 0)}</TableCell>
                   <TableCell>{formatCurrency(sale.total)}</TableCell>
                   <TableCell>{formatCurrency(sale.grossProfit)}</TableCell>
@@ -344,7 +347,7 @@ export default function VendasPage() {
                 </TableRow>
               )}) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-24 text-center">
+                  <TableCell colSpan={8} className="h-24 text-center">
                     Nenhuma venda registrada para esta categoria.
                   </TableCell>
                 </TableRow>
@@ -399,5 +402,3 @@ export default function VendasPage() {
     </>
   );
 }
-
-    
