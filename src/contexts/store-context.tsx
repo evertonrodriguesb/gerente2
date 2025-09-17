@@ -228,18 +228,59 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const { id, ...data } = updatedProduct;
     await updateDoc(productRef, data);
   };
-  const removeSale = async (saleId: string) => { console.warn("removeSale not implemented") };
+  
+  const removeSale = async (saleId: string) => {
+    if (!user) throw new Error("User not authenticated");
+
+    const saleToRemove = sales.find(s => s.id === saleId);
+    if (!saleToRemove) {
+      toast({ title: "Erro", description: "Venda não encontrada.", variant: "destructive" });
+      throw new Error("Sale not found");
+    }
+
+    try {
+      const batch = writeBatch(db);
+      const basePath = `users/${user.uid}`;
+
+      const saleRef = doc(db, basePath, 'sales', saleId);
+      batch.delete(saleRef);
+
+      for (const item of saleToRemove.items) {
+        const productRef = doc(db, basePath, 'products', item.productId);
+        const product = products.find(p => p.id === item.productId);
+        
+        if (product) {
+          const newQuantity = product.quantity + item.quantity;
+          batch.update(productRef, { quantity: newQuantity });
+        } else {
+            console.warn(`Produto com ID ${item.productId} da venda ${saleId} não foi encontrado. O estoque não foi restaurado.`);
+        }
+      }
+
+      await batch.commit();
+      toast({ title: "Venda Removida", description: "A venda foi removida e o estoque foi atualizado com sucesso." });
+
+    } catch (error) {
+      console.error("Error removing sale: ", error);
+      toast({ title: "Erro ao remover venda", description: "Ocorreu um problema ao remover a venda.", variant: "destructive" });
+      throw error;
+    }
+  };
+
   const updateSale = async (updatedSale: Sale) => { console.warn("updateSale not implemented") };
+  
   const updateSupplier = async (updatedSupplier: Supplier) => { 
     if (!user) throw new Error("User not authenticated");
     const supplierRef = doc(db, `users/${user.uid}/suppliers`, updatedSupplier.id);
     const { id, ...data } = updatedSupplier;
     await updateDoc(supplierRef, data);
   };
+  
   const removeSupplier = async (supplierId: string) => {
     if (!user) throw new Error("User not authenticated");
     await deleteDoc(doc(db, `users/${user.uid}/suppliers`, supplierId));
   };
+  
   const getProductById = (id: string) => products.find(p => p.id === id);
   const getCategoryById = (id: string) => categories.find(c => c.id === id);
   const clearData = () => { console.warn("clearData should be handled carefully") };
